@@ -1,0 +1,21 @@
+# Python environments and local configuration
+.venv/
+.env
+
+# Python bytecode and test/tool caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# Notebook and editor state
+.ipynb_checkpoints/
+.vscode/
+.idea/
+
+# Operating-system files
+.DS_Store
+Thumbs.db
+
+# Locally acquired third-party dataset files (documentation remains tracked)
+data/musique_ans/*.jsonl
