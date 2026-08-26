@@ -1,0 +1,9 @@
+# Tested target: Python 3.11+.
+# Task 1: dataset validation and exploratory data analysis only.
+pandas>=2.2,<3.0
+numpy>=1.26,<3.0
+matplotlib>=3.8,<4.0
+seaborn>=0.13,<1.0
+jupyter>=1.0,<2.0
+tqdm>=4.66,<5.0
+pytest>=8.0,<9.0
