@@ -1,0 +1,6 @@
+model: claude-sonnet-4-6
+k: 5
+split: dev
+sample_size: 300     # set to null for full dev
+prompt_path: baseline/prompts/qa_prompt.txt
+retriever: placeholder   # switch to "bm25" once Task 2 is merged
