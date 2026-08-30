@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import random
 import sys
 from pathlib import Path
 
@@ -39,14 +40,21 @@ def main() -> int:
 
     records = load_split(config["split"])
     if config.get("sample_size"):
-        records = records[: config["sample_size"]]
+        # The split is ordered by hop count, so a plain head slice yields an
+        # all-2-hop sample and no 3/4-hop breakdown. Sample with a fixed seed
+        # instead: representative of the split's hop mix, still reproducible.
+        rng = random.Random(config.get("seed", 0))
+        records = rng.sample(records, min(config["sample_size"], len(records)))
 
     retriever = RETRIEVERS[config["retriever"]]
 
-    results = [
-        answer_question(record, retrieve=retriever, k=config["k"], model=config["model"], split=config["split"])
-        for record in records
-    ]
+    results = []
+    for position, record in enumerate(records, start=1):
+        results.append(
+            answer_question(record, retrieve=retriever, k=config["k"], model=config["model"], split=config["split"])
+        )
+        if position % 25 == 0 or position == len(records):
+            print(f"  ...{position}/{len(records)}", file=sys.stderr, flush=True)
 
     report = evaluate(results)
 
