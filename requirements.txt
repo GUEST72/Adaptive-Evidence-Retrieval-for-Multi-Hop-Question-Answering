@@ -9,6 +9,6 @@ tqdm>=4.66,<5.0
 pytest>=8.0,<9.0
 
 # Task 3: naive retrieve-then-answer QA baseline.
-anthropic>=0.40,<1.0
+httpx>=0.27,<1.0
 python-dotenv>=1.0,<2.0
 pyyaml>=6.0,<7.0

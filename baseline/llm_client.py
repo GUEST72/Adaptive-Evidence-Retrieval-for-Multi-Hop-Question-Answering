@@ -1,36 +1,53 @@
-"""Thin wrapper around the Anthropic API. Model name/config comes from
-configs/baseline.yaml, never hardcoded here. API key comes from .env only."""
+"""Thin wrapper around the Groq chat-completions API. Model name/config comes
+from configs/baseline.yaml, never hardcoded here. API key comes from .env only.
+
+Groq exposes an OpenAI-compatible endpoint, so this is a plain POST rather than
+a vendor SDK — one less dependency, and the call shape stays obvious.
+"""
 
 from __future__ import annotations
 
 import os
 
-import anthropic
+import httpx
 from dotenv import load_dotenv
 
 load_dotenv()
 
-_client: anthropic.Anthropic | None = None
+API_URL = "https://api.groq.com/openai/v1/chat/completions"
+REQUEST_TIMEOUT_SECONDS = 60.0
+
+_client: httpx.Client | None = None
 
 
-def _get_client() -> anthropic.Anthropic:
+def _get_client() -> httpx.Client:
     global _client
     if _client is None:
-        api_key = os.getenv("ANTHROPIC_API_KEY")
+        api_key = os.getenv("GROQ_API_KEY")
         if not api_key:
             raise RuntimeError(
-                "ANTHROPIC_API_KEY not set. Copy .env.example to .env and fill it in."
+                "GROQ_API_KEY not set. Copy .env.example to .env and fill it in."
             )
-        _client = anthropic.Anthropic(api_key=api_key)
+        _client = httpx.Client(
+            headers={"Authorization": f"Bearer {api_key}"},
+            timeout=REQUEST_TIMEOUT_SECONDS,
+        )
     return _client
 
 
-def call_llm(prompt: str, model: str, max_tokens: int = 64, temperature: float = 0.0) -> str:
+def call_llm(prompt: str, model: str, max_tokens: int = 512, temperature: float = 0.0) -> str:
     client = _get_client()
-    response = client.messages.create(
-        model=model,
-        max_tokens=max_tokens,
-        temperature=temperature,
-        messages=[{"role": "user", "content": prompt}],
-    )
-    return "".join(block.text for block in response.content if block.type == "text").strip()
+    payload = {
+        "model": model,
+        "max_tokens": max_tokens,
+        "temperature": temperature,
+        "messages": [{"role": "user", "content": prompt}],
+        # gpt-oss models reason before answering; keep that budget small so the
+        # token allowance is spent on the answer, not on hidden deliberation.
+        "reasoning_effort": "low",
+    }
+
+    response = client.post(API_URL, json=payload)
+    response.raise_for_status()
+
+    return (response.json()["choices"][0]["message"]["content"] or "").strip()

@@ -1,4 +1,4 @@
-model: claude-sonnet-4-6
+model: openai/gpt-oss-120b
 k: 5
 split: dev
 sample_size: 300     # set to null for full dev
