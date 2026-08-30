@@ -38,10 +38,32 @@ def test_missing_question_is_rejected() -> None:
     assert "missing_question" in issue_codes([record])
 
 
-def test_incorrect_paragraph_count_is_rejected() -> None:
+def test_shorter_context_is_accepted() -> None:
+    # The official MuSiQue-Ans release ships records with fewer than 20
+    # paragraphs, so a shorter but well-formed context must validate.
     record = valid_record()
     record["paragraphs"] = record["paragraphs"][:-1]
+    assert issue_codes([record]) == set()
+
+
+def test_empty_paragraph_list_is_rejected() -> None:
+    record = valid_record()
+    record["paragraphs"] = []
     assert "paragraph_count" in issue_codes([record])
+
+
+def test_oversized_paragraph_list_is_rejected() -> None:
+    record = valid_record()
+    record["paragraphs"].append(
+        {"idx": 20, "title": "Title 20", "paragraph_text": "Text 20", "is_supporting": False}
+    )
+    assert "paragraph_count" in issue_codes([record])
+
+
+def test_non_contiguous_paragraph_indices_are_rejected() -> None:
+    record = valid_record()
+    record["paragraphs"][-1]["idx"] = 99
+    assert "inconsistent_paragraph_indices" in issue_codes([record])
 
 
 def test_invalid_supporting_reference_is_rejected() -> None:
