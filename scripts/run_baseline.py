@@ -57,6 +57,7 @@ def main() -> int:
 
     retriever = RETRIEVERS[config["retriever"]]
 
+<<<<<<< Updated upstream
     out_dir = Path("baseline/results")
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -99,6 +100,15 @@ def main() -> int:
         f"{'  [PARTIAL RUN]' if exhausted else ''}",
         file=sys.stderr,
     )
+=======
+    results = []
+    for position, record in enumerate(records, start=1):
+        results.append(
+            answer_question(record, retrieve=retriever, k=config["k"], model=config["model"], split=config["split"])
+        )
+        if position % 25 == 0 or position == len(records):
+            print(f"  ...{position}/{len(records)}", file=sys.stderr, flush=True)
+>>>>>>> Stashed changes
 
     report = evaluate(results)
 

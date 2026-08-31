@@ -19,7 +19,11 @@ _TOKEN_RE = re.compile(r"[a-z0-9]+")
 def _records_by_id(split: str) -> dict[str, MuSiQueRecord]:
     """Index a split once per process.
 
+<<<<<<< Updated upstream
     ``get_question`` re-reads *and re-validates* the entire split on every call
+=======
+    ``get_question`` re-reads and re-validates the entire split on every call
+>>>>>>> Stashed changes
     (~0.8s for dev), which over a 300-question run means reloading it 300
     times. This keeps the Task 1 loader as the single source of truth while
     paying that cost once.
