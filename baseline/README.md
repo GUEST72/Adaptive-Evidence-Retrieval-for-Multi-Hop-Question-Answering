@@ -215,8 +215,16 @@ Available configs: `baseline.yaml` (Groq, n=300, reported numbers),
 
 Hosted free tiers cannot finish this sweep: Groq allows 200k tokens/day (k=10
 at n=300 alone needs ~299k) and Gemini allows 20 requests/day per model. A free
-Colab or Kaggle T4 has no such ceiling and runs all three k values in about an
+Colab or Kaggle T4 lifts that ceiling and runs all three k values in about an
 hour, repeatable whenever the retriever changes.
+
+Hugging Face acts only as the weights host: the notebook downloads the model
+once and generates locally on the GPU, so no inference API is involved and
+there is no per-token or per-request quota. The constraint becomes GPU time —
+roughly 30 GPU-hours/week on Kaggle against ~1 hour per full sweep, versus
+Groq's 200k tokens/day that makes k=10 at n=300 impossible outright. Colab's
+free GPU has no published quota but is allocated dynamically and can be
+refused, so Kaggle is the more predictable of the two.
 
 Open `notebooks/run_eval_gpu.ipynb` in Colab or Kaggle, enable the GPU, and run
 it top to bottom. It loads an open model through `transformers` and registers it

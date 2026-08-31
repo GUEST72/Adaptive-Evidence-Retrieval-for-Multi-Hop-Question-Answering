@@ -1,6 +1,11 @@
-# GPU-hosted open model, run from notebooks/run_eval_gpu.ipynb on a free
-# Colab/Kaggle GPU. No daily quota and no rate limit — the whole k sweep runs
-# end to end and can be repeated whenever the retriever changes.
+# Open model run on a free Colab/Kaggle GPU, from notebooks/run_eval_gpu.ipynb.
+#
+# Hugging Face is only the weights host here: the notebook downloads the model
+# once and runs generation locally on the GPU, so there is no inference API in
+# the loop and no per-token or per-request quota. The limit is GPU time
+# instead — Kaggle allows roughly 30 GPU-hours/week and one full k sweep costs
+# about an hour, so the sweep is repeatable rather than rationed. (Do not
+# confuse this with HF's Inference API, which is metered like any hosted tier.)
 #
 # `hf_local` is registered by the notebook at runtime via
 # providers.register_provider, so torch never becomes a laptop dependency.
