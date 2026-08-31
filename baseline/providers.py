@@ -97,7 +97,7 @@ def _send_with_retry(
             raise DailyTokenLimitExceeded(_error_message(response))
 
         if response.status_code in RETRY_STATUS_CODES and attempt < MAX_ATTEMPTS - 1:
-            delay = parse_duration(response.headers.get("retry-after"))
+            delay = _retry_delay(response)
             time.sleep(min(delay or 2.0**attempt, MAX_SLEEP_SECONDS))
             continue
 
@@ -105,6 +105,42 @@ def _send_with_retry(
         return response
 
     raise RuntimeError(f"Provider still failing after {MAX_ATTEMPTS} attempts.")
+
+
+def _retry_delay(response: httpx.Response) -> float:
+    """Seconds to wait before retrying.
+
+    Groq sends a `retry-after` header; Gemini sends none and puts the delay in
+    a RetryInfo entry inside the error body instead.
+    """
+    header = parse_duration(response.headers.get("retry-after"))
+    if header:
+        return header
+
+    try:
+        details = response.json()["error"]["details"]
+    except Exception:
+        return 0.0
+
+    for detail in details:
+        if detail.get("@type", "").endswith("RetryInfo"):
+            return parse_duration(detail.get("retryDelay"))
+    return 0.0
+
+
+def _quota_ids(response: httpx.Response) -> list[str]:
+    """Quota identifiers named in a Google API error body."""
+    try:
+        details = response.json()["error"]["details"]
+    except Exception:
+        return []
+
+    ids = []
+    for detail in details:
+        for violation in detail.get("violations", []) or []:
+            if violation.get("quotaId"):
+                ids.append(violation["quotaId"])
+    return ids
 
 
 def _error_message(response: httpx.Response) -> str:
@@ -147,8 +183,15 @@ def groq_complete(prompt: str, model: str, max_tokens: int, temperature: float) 
 def _gemini_is_daily_limit(response: httpx.Response) -> bool:
     if response.status_code != 429:
         return False
+
+    # The human-readable message says only "Quota exceeded for metric ...";
+    # the per-day nature is visible in the quotaId, e.g.
+    # GenerateRequestsPerDayPerProjectPerModel-FreeTier.
+    if any("perday" in quota_id.lower() for quota_id in _quota_ids(response)):
+        return True
+
     message = _error_message(response).lower()
-    return "per day" in message or "perday" in message or "daily" in message
+    return "per day" in message or "perday" in message
 
 
 def gemini_complete(prompt: str, model: str, max_tokens: int, temperature: float) -> str:
@@ -159,9 +202,11 @@ def gemini_complete(prompt: str, model: str, max_tokens: int, temperature: float
         "temperature": temperature,
         "maxOutputTokens": max_tokens,
     }
-    if "2.5" in model:
-        # 2.5 models think before answering; without this the output budget is
-        # spent on hidden reasoning and the response comes back empty.
+    if "lite" not in model:
+        # Gemini 2.5 and 3.x think before answering — measured at 75 hidden
+        # tokens just to reply "OK" — which wastes the daily budget and can
+        # consume the whole output allowance. The -lite variants do not think
+        # and reject this field outright with a 400, so skip it for them.
         generation_config["thinkingConfig"] = {"thinkingBudget": 0}
 
     payload = {

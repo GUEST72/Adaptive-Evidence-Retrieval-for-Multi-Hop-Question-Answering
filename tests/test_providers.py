@@ -82,7 +82,91 @@ def test_non_429_is_never_a_daily_limit() -> None:
     assert providers._groq_is_daily_limit(FakeResponse({}, status_code=500)) is False
 
 
-def test_gemini_daily_quota_is_recognised() -> None:
+def test_gemini_daily_quota_is_recognised_from_the_quota_id() -> None:
+    # The message text never says "per day" — only the quotaId does.
+    response = FakeResponse(
+        {
+            "error": {
+                "message": "Quota exceeded for metric: generate_content_free_tier_requests, limit: 20",
+                "details": [
+                    {
+                        "@type": "type.googleapis.com/google.rpc.QuotaFailure",
+                        "violations": [
+                            {"quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier",
+                             "quotaValue": "20"}
+                        ],
+                    }
+                ],
+            }
+        },
+        status_code=429,
+    )
+    assert providers._gemini_is_daily_limit(response) is True
+
+
+def test_gemini_per_minute_quota_is_not_treated_as_daily() -> None:
+    response = FakeResponse(
+        {
+            "error": {
+                "message": "Quota exceeded for metric: requests",
+                "details": [
+                    {
+                        "@type": "type.googleapis.com/google.rpc.QuotaFailure",
+                        "violations": [
+                            {"quotaId": "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"}
+                        ],
+                    }
+                ],
+            }
+        },
+        status_code=429,
+    )
+    assert providers._gemini_is_daily_limit(response) is False
+
+
+def test_retry_delay_falls_back_to_retryinfo_when_no_header() -> None:
+    # Gemini sends no retry-after header; the delay lives in the body.
+    response = FakeResponse(
+        {
+            "error": {
+                "details": [
+                    {"@type": "type.googleapis.com/google.rpc.RetryInfo", "retryDelay": "34s"}
+                ]
+            }
+        },
+        status_code=429,
+    )
+    assert providers._retry_delay(response) == pytest.approx(34.0)
+
+
+def test_retry_delay_prefers_the_header_when_present() -> None:
+    response = FakeResponse({}, status_code=429, headers={"retry-after": "12"})
+    assert providers._retry_delay(response) == pytest.approx(12.0)
+
+
+def test_gemini_lite_models_omit_thinking_config(stub_client, monkeypatch) -> None:
+    # -lite variants reject thinkingConfig with a 400 and do not think anyway.
+    monkeypatch.setenv("GEMINI_API_KEY", "test-key")
+    client = stub_client(
+        FakeResponse({"candidates": [{"content": {"parts": [{"text": "x"}]}}]})
+    )
+
+    providers.gemini_complete("q", "gemini-3.5-flash-lite", 64, 0.0)
+    assert "thinkingConfig" not in client.calls[0]["json"]["generationConfig"]
+
+
+def test_gemini_non_lite_models_disable_thinking(stub_client, monkeypatch) -> None:
+    monkeypatch.setenv("GEMINI_API_KEY", "test-key")
+    client = stub_client(
+        FakeResponse({"candidates": [{"content": {"parts": [{"text": "x"}]}}]})
+    )
+
+    providers.gemini_complete("q", "gemini-3.5-flash", 64, 0.0)
+    config = client.calls[0]["json"]["generationConfig"]
+    assert config["thinkingConfig"]["thinkingBudget"] == 0
+
+
+def test_gemini_legacy_daily_quota_message_is_recognised() -> None:
     response = FakeResponse(
         {"error": {"message": "Quota exceeded for quota metric 'Requests per day'"}},
         status_code=429,
