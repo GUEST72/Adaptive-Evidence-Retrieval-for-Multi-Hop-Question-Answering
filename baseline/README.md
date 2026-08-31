@@ -146,6 +146,10 @@ Final answer:
 
 Each retrieved paragraph is rendered as `[title]` followed by its text.
 
+The template file is chosen by `prompt_path` in the config, resolved relative to
+the repository root. Point it at a different file to try a prompt variant —
+but keep it fixed across any set of runs being compared.
+
 ## Evaluation
 
 `evaluation/qa_eval.py` implements the standard MuSiQue/HotpotQA-style metrics

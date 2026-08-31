@@ -117,3 +117,36 @@ def test_evaluate_on_empty_results_is_zeroed() -> None:
     assert report.overall.count == 0
     assert report.overall.em == 0.0
     assert report.by_hop == {}
+
+
+def test_build_prompt_uses_the_default_template() -> None:
+    from baseline.qa_pipeline import PROMPT_PATH, _build_prompt
+
+    prompt = _build_prompt("Who?", [{"title": "T", "text": "body"}])
+
+    assert "Final answer:" in prompt
+    assert "[T]\nbody" in prompt
+    assert "Who?" in prompt
+    assert PROMPT_PATH.exists()
+
+
+def test_build_prompt_honours_a_configured_prompt_path(tmp_path) -> None:
+    from baseline.qa_pipeline import _build_prompt
+
+    custom = tmp_path / "alt_prompt.txt"
+    custom.write_text("ALT {evidence} :: {question}", encoding="utf-8")
+
+    prompt = _build_prompt("Who?", [{"title": "T", "text": "body"}], prompt_path=custom)
+
+    assert prompt == "ALT [T]\nbody :: Who?"
+
+
+def test_relative_prompt_path_resolves_against_the_repo_root(monkeypatch, tmp_path) -> None:
+    from baseline.qa_pipeline import PROMPT_PATH, resolve_prompt_path
+
+    # Configs express prompt_path relative to the repo root, so it must resolve
+    # even when the process is started from somewhere else.
+    monkeypatch.chdir(tmp_path)
+
+    assert resolve_prompt_path("baseline/prompts/qa_prompt.txt") == PROMPT_PATH
+    assert resolve_prompt_path(None) == PROMPT_PATH

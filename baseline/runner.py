@@ -74,6 +74,7 @@ def run_baseline(
                     model=config["model"],
                     split=config["split"],
                     provider=config.get("provider", "groq"),
+                    prompt_path=config.get("prompt_path"),
                 )
             except (DailyTokenLimitExceeded, ProviderUnavailable) as error:
                 # Not retryable in any useful timeframe; keep what is answered.
