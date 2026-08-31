@@ -41,10 +41,13 @@ def cache_dir() -> Path:
     return Path(configured) if configured else DEFAULT_CACHE_DIR
 
 
-def cache_key(*, model: str, prompt: str, max_tokens: int, temperature: float) -> str:
+def cache_key(
+    *, model: str, prompt: str, max_tokens: int, temperature: float, provider: str = "groq"
+) -> str:
     """Everything that can change the response goes into the key."""
     payload = json.dumps(
         {
+            "provider": provider,
             "model": model,
             "prompt": prompt,
             "max_tokens": max_tokens,

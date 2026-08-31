@@ -39,10 +39,11 @@ def answer_question(
     k: int,
     model: str,
     split: str = "dev",
+    provider: str = "groq",
 ) -> QAResult:
     retrieved = retrieve(record.question, record.id, k)
     prompt = _build_prompt(record.question, retrieved)
-    raw_output = call_llm(prompt, model=model)
+    raw_output = call_llm(prompt, model=model, provider=provider)
     predicted = extract_final_answer(raw_output)
 
     return QAResult(

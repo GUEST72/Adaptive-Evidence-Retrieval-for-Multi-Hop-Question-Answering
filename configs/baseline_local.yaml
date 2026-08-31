@@ -1,0 +1,12 @@
+# Local, quota-free iteration via Ollama. Needs `ollama serve` running and
+# `ollama pull qwen2.5:7b-instruct`. Absolute EM will be below a frontier
+# model's, but relative comparisons between retrievers stay valid — which is
+# what retrieval work actually needs.
+provider: ollama
+model: qwen2.5:7b-instruct
+k: 5
+split: dev
+sample_size: 100
+seed: 13             # fixes which records the sample draws
+prompt_path: baseline/prompts/qa_prompt.txt
+retriever: placeholder   # switch to "bm25" once Task 2 is merged

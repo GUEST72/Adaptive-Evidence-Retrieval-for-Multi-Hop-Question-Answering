@@ -1,6 +1,7 @@
 # Iteration config: same settings as baseline.yaml with a smaller sample, for
 # quick end-to-end checks. Report numbers from baseline.yaml, not this file —
 # at n=100 differences under about 5 EM points are not meaningful.
+provider: groq        # groq | gemini | ollama
 model: openai/gpt-oss-120b
 k: 5
 split: dev

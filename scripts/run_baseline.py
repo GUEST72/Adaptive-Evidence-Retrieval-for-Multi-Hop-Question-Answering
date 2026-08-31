@@ -22,7 +22,7 @@ import yaml
 
 from src.data.musique_loader import load_split
 from baseline import llm_cache
-from baseline.llm_client import DailyTokenLimitExceeded, set_cache_enabled
+from baseline.llm_client import DailyTokenLimitExceeded, ProviderUnavailable, set_cache_enabled
 from baseline.placeholder_retriever import retrieve as placeholder_retrieve
 from baseline.qa_pipeline import answer_question
 from evaluation.qa_eval import evaluate
@@ -68,12 +68,17 @@ def main() -> int:
         for position, record in enumerate(records, start=1):
             try:
                 result = answer_question(
-                    record, retrieve=retriever, k=config["k"], model=config["model"], split=config["split"]
+                    record,
+                    retrieve=retriever,
+                    k=config["k"],
+                    model=config["model"],
+                    split=config["split"],
+                    provider=config.get("provider", "groq"),
                 )
-            except DailyTokenLimitExceeded as error:
+            except (DailyTokenLimitExceeded, ProviderUnavailable) as error:
                 # Not retryable in any useful timeframe; keep what is already
                 # answered and report on it rather than discarding the run.
-                print(f"\nDaily token budget exhausted at {position}/{len(records)}.", file=sys.stderr)
+                print(f"\nStopped at {position}/{len(records)}: backend unavailable or out of budget.", file=sys.stderr)
                 print(f"  {error}", file=sys.stderr)
                 exhausted = True
                 break

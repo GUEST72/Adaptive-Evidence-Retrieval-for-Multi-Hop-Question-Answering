@@ -1,0 +1,10 @@
+# Gemini free tier: far more generous daily budget than Groq, so a full
+# 300-question sweep fits. Needs GEMINI_API_KEY in .env.
+provider: gemini
+model: gemini-2.5-flash
+k: 5
+split: dev
+sample_size: 300
+seed: 13             # fixes which records the sample draws
+prompt_path: baseline/prompts/qa_prompt.txt
+retriever: placeholder   # switch to "bm25" once Task 2 is merged
