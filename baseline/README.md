@@ -12,28 +12,9 @@ tasks.
 
 ## Model and provider
 
-<<<<<<< Updated upstream
 The backend is a config choice (`provider:` in `configs/*.yaml`), not a code
 change — `qa_pipeline.py` only ever calls `call_llm`. See
 `baseline/providers.py`.
-=======
-`openai/gpt-oss-120b`, served by **Groq** and called through
-`baseline/llm_client.py` with `max_tokens=512`, `temperature=0.0`, and
-`reasoning_effort="low"`.
-
-> The project plan originally specified `claude-sonnet-4-6` on the Anthropic
-> API. The API key available for this work is a Groq key (`gsk_…`), so the
-> client targets Groq's OpenAI-compatible chat-completions endpoint instead.
-> `call_llm`'s signature is unchanged, so `qa_pipeline.py` never had to know.
-> Switching back to Anthropic means rewriting only `baseline/llm_client.py`.
-
-`gpt-oss` reasons before answering, so `reasoning_effort` is pinned low and
-`max_tokens` is above the answer's needs — otherwise the budget is spent on
-hidden deliberation and the response comes back empty.
-
-The model name lives in `configs/baseline.yaml`, never in code. The API key is
-read from `.env` via `python-dotenv` (`GROQ_API_KEY`); `.env` is gitignored.
->>>>>>> Stashed changes
 
 | provider | model | why |
 | --- | --- | --- |
@@ -85,22 +66,14 @@ sweep resumes for free. Pass `--no-cache` to force fresh calls.
 ## Retriever
 
 **Placeholder lexical retriever** (`baseline/placeholder_retriever.py`) — a
-<<<<<<< Updated upstream
 stand-in until Task 2's BM25 retriever is merged. It scores each of a question's
 own paragraphs by query-token overlap, normalised by the square root of
 paragraph length so long paragraphs don't win on size alone, and returns the top
 *k* by score descending.
-=======
-stand-in until Task 2's BM25 retriever is merged. It scores each of a
-question's own paragraphs by query-token overlap, normalized by the square
-root of paragraph length so long paragraphs don't win on size alone, and
-returns the top *k* by score descending.
->>>>>>> Stashed changes
 
 Retrieval is **closed per question**: only that question's own paragraphs are
 searched — no cross-question or open-domain search. Paragraphs come from the
 Task 1 loader (`src.data.musique_loader.load_split`), indexed once per process
-<<<<<<< Updated upstream
 behind an `lru_cache`, since `get_question` otherwise re-reads *and re-validates*
 the whole split on every call (~0.8s), i.e. 300 times per run.
 
@@ -128,30 +101,6 @@ k=3 is structurally impossible — four gold paragraphs cannot fit in three slot
 
 This is the headline weakness of the baseline and the direct motivation for
 Task 2 (BM25) and the adaptive retrieval work after it.
-=======
-behind an `lru_cache`; the JSONL is never parsed here.
-
-> `get_question` re-reads *and re-validates* the whole split on every call
-> (~0.8s for dev), which over a 300-question run would mean reloading the
-> split 300 times. The retriever therefore indexes the split once by question
-> ID and looks up against that, preserving `get_question`'s behaviour
-> including its `KeyError` on an unknown ID.
-
-### Retrieval quality
-
-Measured over the 300-question evaluation sample. A MuSiQue question is only
-answerable if **every** supporting paragraph is retrieved, so the rightmost
-column is the practical ceiling on EM:
-
-| k | supporting-paragraph recall | all gold paragraphs retrieved |
-| ---: | ---: | ---: |
-| 3 | 26.5% | 7.7% |
-| 5 | 35.8% | 11.7% |
-| 10 | 55.5% | 30.3% |
-
-This is the headline weakness of the baseline and the direct motivation for
-Task 2 (BM25) and the adaptive retrieval work that follows.
->>>>>>> Stashed changes
 
 ### Swapping in BM25 (Task 2)
 
@@ -222,19 +171,6 @@ random sample instead (`seed` in the config) — reproducible and representative
 | 300 drawn with `seed: 13` | 157 | 99 | 44 |
 | full dev split | 1,252 | 760 | 405 |
 
-### Sampling
-
-The dev split is **ordered by hop count**, so the plan's original
-`records[:sample_size]` head slice returns an all-2-hop sample and makes the
-required 2/3/4-hop breakdown impossible. `scripts/run_baseline.py` instead
-draws a seeded random sample (`seed` in `configs/baseline.yaml`), which is
-reproducible and representative:
-
-| sample | 2-hop | 3-hop | 4-hop |
-| --- | ---: | ---: | ---: |
-| 300 drawn with `seed: 13` | 157 | 99 | 44 |
-| full dev split | 1,252 | 760 | 405 |
-
 ## Running it
 
 ```bash
@@ -242,11 +178,7 @@ pip install -r requirements.txt
 ```
 
 ```bash
-<<<<<<< Updated upstream
 cp .env.example .env   # then fill in the key for your chosen provider
-=======
-cp .env.example .env   # then fill in GROQ_API_KEY
->>>>>>> Stashed changes
 ```
 
 The MuSiQue-Ans splits are not versioned here — see `data/musique_ans/README.md`.
@@ -264,7 +196,6 @@ iterating on retrievers:
 python scripts/run_retrieval_eval.py --config configs/baseline.yaml
 ```
 
-<<<<<<< Updated upstream
 Tests:
 
 ```bash
@@ -314,23 +245,3 @@ squarely retrieval, not the reader — exactly the gap Task 2 onwards addresses.
   run-to-run noise even at `temperature=0`.
 - Hop-wise cells are small — 44 questions at 4 hops — so those numbers carry
   meaningfully wider error bars than the overall figure.
-=======
-## Results
-
-<!-- RESULTS -->
-
-## Known limitations
-
-- The retriever is a lexical-overlap placeholder, not BM25. It retrieves all
-  supporting paragraphs for only 8–30% of questions depending on *k*, which
-  caps EM well below what the model could otherwise reach. Every number above
-  should be expected to move once Task 2 is merged.
-- 300 of 2,417 dev questions, one run per configuration. With
-  `temperature=0.0` this is nearly deterministic, but no variance across
-  repeated runs is reported.
-- Hop-wise cells are small — 44 questions at 4 hops — so per-hop numbers carry
-  meaningfully wider error bars than the overall figure.
-- The baseline answers from a single retrieval pass, so questions whose later
-  hops depend on an intermediate answer are largely unreachable by
-  construction. That gap is the project's actual subject.
->>>>>>> Stashed changes

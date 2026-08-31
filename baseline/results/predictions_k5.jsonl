@@ -1,5 +1,0 @@
-{"question_id": "2hop__460946_294723", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Miquette Giraudy", "gold_aliases": [], "retrieved_indices": [1, 12, 8, 9, 14]}
-{"question_id": "2hop__252311_366220", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Mike Medavoy", "gold_aliases": [], "retrieved_indices": [9, 18, 15, 16, 5]}
-{"question_id": "2hop__701895_752697", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Tamaulipas", "gold_aliases": [], "retrieved_indices": [4, 19, 0, 8, 9]}
-{"question_id": "2hop__259228_793698", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Cologne", "gold_aliases": [], "retrieved_indices": [12, 15, 13, 18, 11]}
-{"question_id": "2hop__481349_302087", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Bombardier Inc.", "gold_aliases": ["Bombardier"], "retrieved_indices": [2, 4, 10, 13, 1]}

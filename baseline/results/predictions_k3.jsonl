@@ -8,15 +8,9 @@
 {"question_id": "2hop__6744_6731", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Northwestern Catalan and Valencian", "gold_aliases": [], "retrieved_indices": [14, 3, 19]}
 {"question_id": "2hop__143915_68489", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Snapper Foster", "gold_aliases": [], "retrieved_indices": [9, 7, 4]}
 {"question_id": "4hop1__33012_53706_795904_580996", "hop_count": 4, "predicted_answer": "unknown", "gold_answer": "Rio Linda", "gold_aliases": [], "retrieved_indices": [3, 7, 16]}
-<<<<<<< Updated upstream
 {"question_id": "2hop__2683_577502", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Maria Shriver", "gold_aliases": [], "retrieved_indices": [1, 19, 5]}
 {"question_id": "3hop1__507961_160713_77246", "hop_count": 3, "predicted_answer": "Indian", "gold_answer": "the country of India", "gold_aliases": ["IND", "IN", "India", "in", "Republic of India"], "retrieved_indices": [15, 16, 8]}
 {"question_id": "2hop__286093_361551", "hop_count": 2, "predicted_answer": "Bay County, Florida", "gold_answer": "Bay County", "gold_aliases": ["Bay County, Florida"], "retrieved_indices": [2, 19, 8]}
-=======
-{"question_id": "2hop__2683_577502", "hop_count": 2, "predicted_answer": "Maria Shriver", "gold_answer": "Maria Shriver", "gold_aliases": [], "retrieved_indices": [1, 19, 5]}
-{"question_id": "3hop1__507961_160713_77246", "hop_count": 3, "predicted_answer": "Indian", "gold_answer": "the country of India", "gold_aliases": ["IND", "IN", "India", "in", "Republic of India"], "retrieved_indices": [15, 16, 8]}
-{"question_id": "2hop__286093_361551", "hop_count": 2, "predicted_answer": "Bay County", "gold_answer": "Bay County", "gold_aliases": ["Bay County, Florida"], "retrieved_indices": [2, 19, 8]}
->>>>>>> Stashed changes
 {"question_id": "3hop1__136016_87694_64412", "hop_count": 3, "predicted_answer": "1821", "gold_answer": "11 February 1929", "gold_aliases": [], "retrieved_indices": [13, 15, 12]}
 {"question_id": "2hop__70338_160040", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Josh McDowell", "gold_aliases": [], "retrieved_indices": [5, 12, 6]}
 {"question_id": "2hop__860241_766393", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Nobel Prize in Literature", "gold_aliases": ["Austrian State Prize for European Literature", "Prix mondial Cino Del Duca", "Grand Prix du roman de l'Acad\u00e9mie fran\u00e7aise", "Prix Goncourt"], "retrieved_indices": [8, 9, 11]}
@@ -32,21 +26,12 @@
 {"question_id": "2hop__63002_461854", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Laurence Olivier", "gold_aliases": [], "retrieved_indices": [13, 6, 17]}
 {"question_id": "4hop2__161602_426860_88460_21057", "hop_count": 4, "predicted_answer": "unknown", "gold_answer": "75% of the world's teak", "gold_aliases": [], "retrieved_indices": [15, 17, 7]}
 {"question_id": "2hop__82378_158266", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "The Australian Ballet", "gold_aliases": [], "retrieved_indices": [5, 12, 14]}
-<<<<<<< Updated upstream
 {"question_id": "3hop1__106042_64399_59680", "hop_count": 3, "predicted_answer": "fourteen", "gold_answer": "fourteen", "gold_aliases": [], "retrieved_indices": [1, 2, 0]}
 {"question_id": "3hop1__365934_87694_64412", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "11 February 1929", "gold_aliases": [], "retrieved_indices": [6, 1, 17]}
 {"question_id": "3hop2__782397_467331_162182", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "South Central Coast", "gold_aliases": [], "retrieved_indices": [15, 14, 10]}
 {"question_id": "3hop1__73796_87694_124169", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "1952", "gold_aliases": [], "retrieved_indices": [7, 15, 12]}
 {"question_id": "3hop1__837871_831637_91775", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "Sea, Air, and Land", "gold_aliases": [], "retrieved_indices": [1, 17, 7]}
 {"question_id": "2hop__88953_64006", "hop_count": 2, "predicted_answer": "30% to 65%", "gold_answer": "30% to 65%", "gold_aliases": [], "retrieved_indices": [15, 18, 10]}
-=======
-{"question_id": "3hop1__106042_64399_59680", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "fourteen", "gold_aliases": [], "retrieved_indices": [1, 2, 0]}
-{"question_id": "3hop1__365934_87694_64412", "hop_count": 3, "predicted_answer": "1929", "gold_answer": "11 February 1929", "gold_aliases": [], "retrieved_indices": [6, 1, 17]}
-{"question_id": "3hop2__782397_467331_162182", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "South Central Coast", "gold_aliases": [], "retrieved_indices": [15, 14, 10]}
-{"question_id": "3hop1__73796_87694_124169", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "1952", "gold_aliases": [], "retrieved_indices": [7, 15, 12]}
-{"question_id": "3hop1__837871_831637_91775", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "Sea, Air, and Land", "gold_aliases": [], "retrieved_indices": [1, 17, 7]}
-{"question_id": "2hop__88953_64006", "hop_count": 2, "predicted_answer": "30% to 65% of the population killed.", "gold_answer": "30% to 65%", "gold_aliases": [], "retrieved_indices": [15, 18, 10]}
->>>>>>> Stashed changes
 {"question_id": "3hop2__38326_92991_76291", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "January 2015", "gold_aliases": [], "retrieved_indices": [10, 0, 18]}
 {"question_id": "2hop__46213_494136", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Meg Ryan", "gold_aliases": [], "retrieved_indices": [16, 15, 13]}
 {"question_id": "4hop1__94201_642284_131926_87157", "hop_count": 4, "predicted_answer": "unknown", "gold_answer": "rises in northern Minnesota and meanders slowly southwards", "gold_aliases": ["Minnesota"], "retrieved_indices": [19, 3, 9]}
@@ -55,11 +40,7 @@
 {"question_id": "3hop1__273571_834494_34088", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "Tucson Raceway Park", "gold_aliases": ["Tucson, Arizona", "Tucson"], "retrieved_indices": [7, 17, 11]}
 {"question_id": "3hop1__783711_503371_21711", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "built in the 15th century", "gold_aliases": ["15th century"], "retrieved_indices": [1, 11, 18]}
 {"question_id": "4hop3__719125_132409_223216_35031", "hop_count": 4, "predicted_answer": "unknown", "gold_answer": "third-largest", "gold_aliases": [], "retrieved_indices": [0, 15, 10]}
-<<<<<<< Updated upstream
 {"question_id": "2hop__159816_37168", "hop_count": 2, "predicted_answer": "401\u2011500", "gold_answer": "551-600", "gold_aliases": [], "retrieved_indices": [16, 1, 19]}
-=======
-{"question_id": "2hop__159816_37168", "hop_count": 2, "predicted_answer": "401-500", "gold_answer": "551-600", "gold_aliases": [], "retrieved_indices": [16, 1, 19]}
->>>>>>> Stashed changes
 {"question_id": "3hop1__106688_160713_77246", "hop_count": 3, "predicted_answer": "submission", "gold_answer": "the country of India", "gold_aliases": ["IND", "IN", "India", "in", "Republic of India"], "retrieved_indices": [4, 14, 11]}
 {"question_id": "2hop__35173_17335", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "323 BC", "gold_aliases": [], "retrieved_indices": [4, 15, 3]}
 {"question_id": "2hop__23459_22946", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "George Sarton", "gold_aliases": [], "retrieved_indices": [12, 7, 0]}
@@ -100,11 +81,7 @@
 {"question_id": "2hop__87953_17335", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "323 BC", "gold_aliases": [], "retrieved_indices": [14, 15, 4]}
 {"question_id": "3hop2__125104_90098_10557", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "Medieval Latin", "gold_aliases": [], "retrieved_indices": [9, 12, 15]}
 {"question_id": "4hop3__129318_29339_508306_70744", "hop_count": 4, "predicted_answer": "unknown", "gold_answer": "University of South Carolina", "gold_aliases": ["SCar", "USC", "SC"], "retrieved_indices": [6, 12, 5]}
-<<<<<<< Updated upstream
 {"question_id": "2hop__161273_92673", "hop_count": 2, "predicted_answer": "North Pole", "gold_answer": "latitude 90 \u00b0 North", "gold_aliases": [], "retrieved_indices": [15, 16, 5]}
-=======
-{"question_id": "2hop__161273_92673", "hop_count": 2, "predicted_answer": "North Pole, at the top of the world map.", "gold_answer": "latitude 90 \u00b0 North", "gold_aliases": [], "retrieved_indices": [15, 16, 5]}
->>>>>>> Stashed changes
 {"question_id": "2hop__196348_150107", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Association for Computing Machinery", "gold_aliases": ["ACM"], "retrieved_indices": [14, 7, 11]}
 {"question_id": "4hop2__71753_729371_70784_79935", "hop_count": 4, "predicted_answer": "unknown", "gold_answer": "1930", "gold_aliases": [], "retrieved_indices": [18, 15, 9]}
 {"question_id": "2hop__423045_570226", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Danzhou", "gold_aliases": [], "retrieved_indices": [4, 7, 15]}
@@ -113,19 +90,11 @@
 {"question_id": "2hop__43776_162341", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "nominated for an Academy Award for Best Supporting Actor", "gold_aliases": ["Academy Award for Best Supporting Actor"], "retrieved_indices": [6, 18, 1]}
 {"question_id": "3hop2__655849_467331_162182", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "South Central Coast", "gold_aliases": [], "retrieved_indices": [7, 10, 2]}
 {"question_id": "3hop1__106845_5188_86687", "hop_count": 3, "predicted_answer": "March\u202f1954", "gold_answer": "May 1990", "gold_aliases": ["1990"], "retrieved_indices": [1, 6, 15]}
-<<<<<<< Updated upstream
 {"question_id": "3hop2__11282_57233_56883", "hop_count": 3, "predicted_answer": "1916", "gold_answer": "1964", "gold_aliases": [], "retrieved_indices": [16, 5, 2]}
 {"question_id": "3hop1__408237_400692_51423", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "Casa Loma", "gold_aliases": [], "retrieved_indices": [17, 5, 14]}
 {"question_id": "2hop__122651_141338", "hop_count": 2, "predicted_answer": "City University of New York", "gold_answer": "City University of New York", "gold_aliases": ["The City University of New York"], "retrieved_indices": [18, 10, 4]}
 {"question_id": "3hop1__604797_443779_52195", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "Francisco Guterres", "gold_aliases": [], "retrieved_indices": [7, 16, 18]}
 {"question_id": "2hop__159903_419949", "hop_count": 2, "predicted_answer": "Windhoek", "gold_answer": "Aden", "gold_aliases": [], "retrieved_indices": [1, 18, 9]}
-=======
-{"question_id": "3hop2__11282_57233_56883", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "1964", "gold_aliases": [], "retrieved_indices": [16, 5, 2]}
-{"question_id": "3hop1__408237_400692_51423", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "Casa Loma", "gold_aliases": [], "retrieved_indices": [17, 5, 14]}
-{"question_id": "2hop__122651_141338", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "City University of New York", "gold_aliases": ["The City University of New York"], "retrieved_indices": [18, 10, 4]}
-{"question_id": "3hop1__604797_443779_52195", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "Francisco Guterres", "gold_aliases": [], "retrieved_indices": [7, 16, 18]}
-{"question_id": "2hop__159903_419949", "hop_count": 2, "predicted_answer": "Brazzaville", "gold_answer": "Aden", "gold_aliases": [], "retrieved_indices": [1, 18, 9]}
->>>>>>> Stashed changes
 {"question_id": "2hop__61714_52026", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "``Niagara ''", "gold_aliases": ["Niagara"], "retrieved_indices": [2, 5, 10]}
 {"question_id": "2hop__51881_20590", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "after 1900", "gold_aliases": [], "retrieved_indices": [1, 18, 3]}
 {"question_id": "2hop__91667_81007", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Tracy McConnell", "gold_aliases": ["The Mother (How I Met Your Mother)", "The Mother"], "retrieved_indices": [13, 7, 4]}
@@ -149,17 +118,10 @@
 {"question_id": "2hop__771477_149987", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Greek mythology", "gold_aliases": [], "retrieved_indices": [10, 4, 7]}
 {"question_id": "3hop1__68981_91191_156667", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "Khawlah bint Ja'far", "gold_aliases": ["Fatimah", "Fatima"], "retrieved_indices": [2, 10, 1]}
 {"question_id": "2hop__95773_51329", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "The African Queen", "gold_aliases": [], "retrieved_indices": [12, 0, 15]}
-<<<<<<< Updated upstream
 {"question_id": "4hop1__118068_582428_157828_162309", "hop_count": 4, "predicted_answer": "1912", "gold_answer": "2016", "gold_aliases": [], "retrieved_indices": [7, 18, 8]}
 {"question_id": "4hop1__60000_59747_211319_557671", "hop_count": 4, "predicted_answer": "unknown", "gold_answer": "Presque Isle County", "gold_aliases": [], "retrieved_indices": [19, 16, 4]}
 {"question_id": "3hop1__106239_650651_7262", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "Walter Sabo", "gold_aliases": [], "retrieved_indices": [4, 15, 12]}
 {"question_id": "2hop__16581_16525", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "661", "gold_aliases": [], "retrieved_indices": [5, 13, 7]}
-=======
-{"question_id": "4hop1__118068_582428_157828_162309", "hop_count": 4, "predicted_answer": "1992", "gold_answer": "2016", "gold_aliases": [], "retrieved_indices": [7, 18, 8]}
-{"question_id": "4hop1__60000_59747_211319_557671", "hop_count": 4, "predicted_answer": "unknown", "gold_answer": "Presque Isle County", "gold_aliases": [], "retrieved_indices": [19, 16, 4]}
-{"question_id": "3hop1__106239_650651_7262", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "Walter Sabo", "gold_aliases": [], "retrieved_indices": [4, 15, 12]}
-{"question_id": "2hop__16581_16525", "hop_count": 2, "predicted_answer": "661 AD", "gold_answer": "661", "gold_aliases": [], "retrieved_indices": [5, 13, 7]}
->>>>>>> Stashed changes
 {"question_id": "2hop__554167_451128", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Chynna Phillips", "gold_aliases": [], "retrieved_indices": [11, 5, 15]}
 {"question_id": "3hop1__255970_831637_91775", "hop_count": 3, "predicted_answer": "Sea, Air, and Land", "gold_answer": "Sea, Air, and Land", "gold_aliases": [], "retrieved_indices": [7, 12, 6]}
 {"question_id": "3hop1__38738_73181_68042", "hop_count": 3, "predicted_answer": "2007", "gold_answer": "the 2010 election", "gold_aliases": [], "retrieved_indices": [1, 7, 5]}
@@ -177,20 +139,12 @@
 {"question_id": "2hop__96414_47902", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Matt Damon", "gold_aliases": [], "retrieved_indices": [3, 2, 12]}
 {"question_id": "2hop__88632_67668", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Nightwing / Dick Grayson", "gold_aliases": ["Nightwing", "Dick Grayson", "Batman", "Robin"], "retrieved_indices": [0, 4, 3]}
 {"question_id": "2hop__156700_73244", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Thaba Putsoa", "gold_aliases": [], "retrieved_indices": [8, 3, 1]}
-<<<<<<< Updated upstream
 {"question_id": "3hop1__313670_42197_18397", "hop_count": 3, "predicted_answer": "at his May\u202f1950 meeting with Kim", "gold_answer": "the Politburo", "gold_aliases": ["Politburo"], "retrieved_indices": [15, 18, 7]}
-=======
-{"question_id": "3hop1__313670_42197_18397", "hop_count": 3, "predicted_answer": "May\u202f1950", "gold_answer": "the Politburo", "gold_aliases": ["Politburo"], "retrieved_indices": [15, 18, 7]}
->>>>>>> Stashed changes
 {"question_id": "2hop__94629_1110", "hop_count": 2, "predicted_answer": "2005", "gold_answer": "2005", "gold_aliases": [], "retrieved_indices": [11, 18, 0]}
 {"question_id": "2hop__398344_439882", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Rebecca Sugar", "gold_aliases": [], "retrieved_indices": [13, 3, 17]}
 {"question_id": "3hop1__564628_42197_18397", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "the Politburo", "gold_aliases": ["Politburo"], "retrieved_indices": [4, 18, 19]}
 {"question_id": "3hop2__131820_132454_61019", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "Milledgeville", "gold_aliases": [], "retrieved_indices": [3, 2, 7]}
-<<<<<<< Updated upstream
 {"question_id": "3hop2__132957_433432_40768", "hop_count": 3, "predicted_answer": "around 1983", "gold_answer": "1981", "gold_aliases": [], "retrieved_indices": [8, 17, 4]}
-=======
-{"question_id": "3hop2__132957_433432_40768", "hop_count": 3, "predicted_answer": "early 1980s", "gold_answer": "1981", "gold_aliases": [], "retrieved_indices": [8, 17, 4]}
->>>>>>> Stashed changes
 {"question_id": "2hop__9930_21567", "hop_count": 2, "predicted_answer": "John Kukuzelis", "gold_answer": "John Kukuzelis", "gold_aliases": [], "retrieved_indices": [8, 19, 18]}
 {"question_id": "2hop__506099_20057", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Richard Stallman", "gold_aliases": ["rms"], "retrieved_indices": [3, 18, 11]}
 {"question_id": "3hop1__603558_87694_124169", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "1952", "gold_aliases": [], "retrieved_indices": [19, 5, 9]}
@@ -207,11 +161,7 @@
 {"question_id": "2hop__846415_88165", "hop_count": 2, "predicted_answer": "Keturah", "gold_answer": "Keturah", "gold_aliases": [], "retrieved_indices": [14, 8, 15]}
 {"question_id": "4hop1__94201_642284_131926_89261", "hop_count": 4, "predicted_answer": "Matagorda Bay", "gold_answer": "the Mississippi River Delta", "gold_aliases": ["Mississippi River Delta"], "retrieved_indices": [2, 9, 7]}
 {"question_id": "4hop1__580153_49925_13759_736921", "hop_count": 4, "predicted_answer": "unknown", "gold_answer": "Saxony-Anhalt", "gold_aliases": [], "retrieved_indices": [5, 0, 8]}
-<<<<<<< Updated upstream
 {"question_id": "2hop__161507_77849", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Mian Saqib Nisar", "gold_aliases": [], "retrieved_indices": [18, 12, 19]}
-=======
-{"question_id": "2hop__161507_77849", "hop_count": 2, "predicted_answer": "Mian Saqib Nisar", "gold_answer": "Mian Saqib Nisar", "gold_aliases": [], "retrieved_indices": [18, 12, 19]}
->>>>>>> Stashed changes
 {"question_id": "3hop1__305566_568433_51423", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "Casa Loma", "gold_aliases": [], "retrieved_indices": [19, 17, 18]}
 {"question_id": "2hop__36747_18974", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Chen Zheng", "gold_aliases": [], "retrieved_indices": [18, 1, 16]}
 {"question_id": "3hop1__145212_443779_52195", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "Francisco Guterres", "gold_aliases": [], "retrieved_indices": [16, 5, 7]}
@@ -222,11 +172,7 @@
 {"question_id": "2hop__91667_67223", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Tracy Mosby", "gold_aliases": [], "retrieved_indices": [9, 16, 3]}
 {"question_id": "3hop1__131783_131926_13165", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "Treaty of Paris", "gold_aliases": [], "retrieved_indices": [14, 6, 11]}
 {"question_id": "2hop__96411_159054", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "the novel of the same name by Robert Ludlum", "gold_aliases": ["Robert Ludlum"], "retrieved_indices": [6, 9, 17]}
-<<<<<<< Updated upstream
 {"question_id": "2hop__735014_83837", "hop_count": 2, "predicted_answer": "Karen Fairchild", "gold_answer": "Karen Fairchild", "gold_aliases": [], "retrieved_indices": [8, 1, 15]}
-=======
-{"question_id": "2hop__735014_83837", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Karen Fairchild", "gold_aliases": [], "retrieved_indices": [8, 1, 15]}
->>>>>>> Stashed changes
 {"question_id": "3hop2__304722_747004_63959", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "1 December 2010", "gold_aliases": [], "retrieved_indices": [10, 9, 6]}
 {"question_id": "3hop1__622497_160088_85460", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "$59,039", "gold_aliases": [], "retrieved_indices": [0, 10, 5]}
 {"question_id": "3hop1__222497_309482_80702", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "Rialto Bridge", "gold_aliases": ["Ponte di Rialto"], "retrieved_indices": [16, 11, 3]}
@@ -238,21 +184,12 @@
 {"question_id": "3hop2__792915_467331_162182", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "South Central Coast", "gold_aliases": [], "retrieved_indices": [14, 17, 18]}
 {"question_id": "3hop1__609479_503371_21711", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "built in the 15th century", "gold_aliases": ["15th century"], "retrieved_indices": [15, 8, 12]}
 {"question_id": "3hop1__17192_78396_42428", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "French residents who chose to remain in the colony would be given freedom", "gold_aliases": [], "retrieved_indices": [7, 5, 10]}
-<<<<<<< Updated upstream
 {"question_id": "3hop2__57233_11282_56883", "hop_count": 3, "predicted_answer": "1964", "gold_answer": "1964", "gold_aliases": [], "retrieved_indices": [18, 11, 12]}
 {"question_id": "3hop1__579562_629431_64412", "hop_count": 3, "predicted_answer": "1929", "gold_answer": "11 February 1929", "gold_aliases": [], "retrieved_indices": [15, 0, 12]}
 {"question_id": "2hop__56851_343058", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Adrian Edmondson", "gold_aliases": [], "retrieved_indices": [13, 14, 15]}
 {"question_id": "3hop1__133264_40769_64047", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "Sales began worldwide in April 2012", "gold_aliases": [], "retrieved_indices": [9, 0, 6]}
 {"question_id": "4hop3__673447_132409_371500_35031", "hop_count": 4, "predicted_answer": "unknown", "gold_answer": "third-largest", "gold_aliases": [], "retrieved_indices": [1, 12, 13]}
 {"question_id": "3hop1__475351_160713_77246", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "the country of India", "gold_aliases": ["IND", "IN", "India", "in", "Republic of India"], "retrieved_indices": [6, 8, 1]}
-=======
-{"question_id": "3hop2__57233_11282_56883", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "1964", "gold_aliases": [], "retrieved_indices": [18, 11, 12]}
-{"question_id": "3hop1__579562_629431_64412", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "11 February 1929", "gold_aliases": [], "retrieved_indices": [15, 0, 12]}
-{"question_id": "2hop__56851_343058", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Adrian Edmondson", "gold_aliases": [], "retrieved_indices": [13, 14, 15]}
-{"question_id": "3hop1__133264_40769_64047", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "Sales began worldwide in April 2012", "gold_aliases": [], "retrieved_indices": [9, 0, 6]}
-{"question_id": "4hop3__673447_132409_371500_35031", "hop_count": 4, "predicted_answer": "unknown", "gold_answer": "third-largest", "gold_aliases": [], "retrieved_indices": [1, 12, 13]}
-{"question_id": "3hop1__475351_160713_77246", "hop_count": 3, "predicted_answer": "Indian", "gold_answer": "the country of India", "gold_aliases": ["IND", "IN", "India", "in", "Republic of India"], "retrieved_indices": [6, 8, 1]}
->>>>>>> Stashed changes
 {"question_id": "2hop__215898_67465", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "March 11, 2011", "gold_aliases": [], "retrieved_indices": [9, 16, 11]}
 {"question_id": "2hop__587048_621800", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Senica District", "gold_aliases": [], "retrieved_indices": [2, 3, 17]}
 {"question_id": "3hop1__829944_474097_84283", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "Warner Music Group", "gold_aliases": ["Warner Music"], "retrieved_indices": [18, 17, 10]}
@@ -282,21 +219,12 @@
 {"question_id": "2hop__726892_131968", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "River Thames", "gold_aliases": [], "retrieved_indices": [9, 4, 10]}
 {"question_id": "2hop__423874_128023", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Major League Soccer", "gold_aliases": ["MLS"], "retrieved_indices": [11, 2, 15]}
 {"question_id": "4hop1__51465_53706_795904_580996", "hop_count": 4, "predicted_answer": "Oak Lawn", "gold_answer": "Rio Linda", "gold_aliases": [], "retrieved_indices": [5, 7, 16]}
-<<<<<<< Updated upstream
 {"question_id": "3hop1__79039_131926_90707", "hop_count": 3, "predicted_answer": "Ohio River", "gold_answer": "at the city of Cairo, Illinois", "gold_aliases": [], "retrieved_indices": [15, 14, 3]}
 {"question_id": "4hop1__47210_53706_795904_580996", "hop_count": 4, "predicted_answer": "Oak Lawn", "gold_answer": "Rio Linda", "gold_aliases": [], "retrieved_indices": [12, 5, 0]}
 {"question_id": "3hop1__689538_547811_80702", "hop_count": 3, "predicted_answer": "Rialto Bridge", "gold_answer": "Rialto Bridge", "gold_aliases": ["Ponte di Rialto"], "retrieved_indices": [3, 18, 10]}
 {"question_id": "3hop1__106864_160713_77246", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "the country of India", "gold_aliases": ["IND", "IN", "India", "in", "Republic of India", "Hindustan"], "retrieved_indices": [3, 17, 18]}
 {"question_id": "2hop__47257_43786", "hop_count": 2, "predicted_answer": "The Washington Post", "gold_answer": "Washington, D.C.", "gold_aliases": ["Washington", "D.C.", "District of Columbia"], "retrieved_indices": [0, 9, 15]}
 {"question_id": "2hop__89632_40480", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Charleston Orange district", "gold_aliases": [], "retrieved_indices": [3, 18, 14]}
-=======
-{"question_id": "3hop1__79039_131926_90707", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "at the city of Cairo, Illinois", "gold_aliases": [], "retrieved_indices": [15, 14, 3]}
-{"question_id": "4hop1__47210_53706_795904_580996", "hop_count": 4, "predicted_answer": "unknown", "gold_answer": "Rio Linda", "gold_aliases": [], "retrieved_indices": [12, 5, 0]}
-{"question_id": "3hop1__689538_547811_80702", "hop_count": 3, "predicted_answer": "Rialto Bridge", "gold_answer": "Rialto Bridge", "gold_aliases": ["Ponte di Rialto"], "retrieved_indices": [3, 18, 10]}
-{"question_id": "3hop1__106864_160713_77246", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "the country of India", "gold_aliases": ["IND", "IN", "India", "in", "Republic of India", "Hindustan"], "retrieved_indices": [3, 17, 18]}
-{"question_id": "2hop__47257_43786", "hop_count": 2, "predicted_answer": "The Washington Post", "gold_answer": "Washington, D.C.", "gold_aliases": ["Washington", "D.C.", "District of Columbia"], "retrieved_indices": [0, 9, 15]}
-{"question_id": "2hop__89632_40480", "hop_count": 2, "predicted_answer": "Virginia", "gold_answer": "Charleston Orange district", "gold_aliases": [], "retrieved_indices": [3, 18, 14]}
->>>>>>> Stashed changes
 {"question_id": "3hop1__275261_443779_52195", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "Francisco Guterres", "gold_aliases": [], "retrieved_indices": [6, 2, 15]}
 {"question_id": "2hop__247353_55227", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Maria Bello", "gold_aliases": [], "retrieved_indices": [4, 6, 9]}
 {"question_id": "3hop1__152880_131926_87157", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "rises in northern Minnesota and meanders slowly southwards", "gold_aliases": ["Minnesota"], "retrieved_indices": [7, 16, 3]}
@@ -309,11 +237,7 @@
 {"question_id": "2hop__813461_31270", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "45", "gold_aliases": [], "retrieved_indices": [0, 13, 3]}
 {"question_id": "2hop__69765_43945", "hop_count": 2, "predicted_answer": "It galvanized colonial support for independence.", "gold_answer": "crystallized the rebellious demand for independence from Great Britain", "gold_aliases": ["Great Britain"], "retrieved_indices": [16, 10, 14]}
 {"question_id": "3hop1__305566_568433_47686", "hop_count": 3, "predicted_answer": "Port Authority Bus Terminal", "gold_answer": "Toronto Coach Terminal", "gold_aliases": [], "retrieved_indices": [14, 5, 17]}
-<<<<<<< Updated upstream
 {"question_id": "3hop1__641921_42197_18397", "hop_count": 3, "predicted_answer": "Korea", "gold_answer": "the Politburo", "gold_aliases": ["Politburo"], "retrieved_indices": [9, 7, 19]}
-=======
-{"question_id": "3hop1__641921_42197_18397", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "the Politburo", "gold_aliases": ["Politburo"], "retrieved_indices": [9, 7, 19]}
->>>>>>> Stashed changes
 {"question_id": "2hop__612719_6455", "hop_count": 2, "predicted_answer": "Firefox", "gold_answer": "Firefox", "gold_aliases": ["Firefox web browser", "Mozilla Firefox"], "retrieved_indices": [8, 1, 19]}
 {"question_id": "3hop1__103440_443779_52195", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "Francisco Guterres", "gold_aliases": [], "retrieved_indices": [4, 16, 1]}
 {"question_id": "2hop__488811_30113", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "names were replaced by new Russian names", "gold_aliases": [], "retrieved_indices": [4, 15, 11]}
@@ -322,11 +246,7 @@
 {"question_id": "3hop2__304722_692815_63959", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "1 December 2010", "gold_aliases": [], "retrieved_indices": [17, 1, 9]}
 {"question_id": "3hop1__818422_160545_60577", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "Ko Phi Phi Leh", "gold_aliases": ["Ko Phi Phi Le"], "retrieved_indices": [0, 3, 16]}
 {"question_id": "3hop1__305282_282081_10972", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "1970s", "gold_aliases": [], "retrieved_indices": [16, 18, 11]}
-<<<<<<< Updated upstream
 {"question_id": "4hop3__316459_41402_146223_13584", "hop_count": 4, "predicted_answer": "different cities (Barcelona vs. Madrid)", "gold_answer": "two cities", "gold_aliases": [], "retrieved_indices": [10, 17, 9]}
-=======
-{"question_id": "4hop3__316459_41402_146223_13584", "hop_count": 4, "predicted_answer": "different cities (Barcelona vs Madrid)", "gold_answer": "two cities", "gold_aliases": [], "retrieved_indices": [10, 17, 9]}
->>>>>>> Stashed changes
 {"question_id": "3hop1__801799_547811_41132", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "22", "gold_aliases": [], "retrieved_indices": [14, 17, 19]}
 {"question_id": "2hop__32441_522949", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Edith Roosevelt", "gold_aliases": [], "retrieved_indices": [0, 14, 9]}
 {"question_id": "2hop__864101_135373", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Vitus Bering", "gold_aliases": [], "retrieved_indices": [0, 6, 1]}
@@ -339,11 +259,7 @@
 {"question_id": "4hop1__83058_53706_795904_580996", "hop_count": 4, "predicted_answer": "unknown", "gold_answer": "Rio Linda", "gold_aliases": [], "retrieved_indices": [5, 18, 14]}
 {"question_id": "2hop__128608_82341", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "in Northern Florida", "gold_aliases": ["Northern Florida"], "retrieved_indices": [5, 13, 19]}
 {"question_id": "3hop1__572324_568433_51423", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "Casa Loma", "gold_aliases": [], "retrieved_indices": [11, 4, 12]}
-<<<<<<< Updated upstream
 {"question_id": "2hop__132472_684936", "hop_count": 2, "predicted_answer": "The Keystone Film Company", "gold_answer": "BAC", "gold_aliases": [], "retrieved_indices": [0, 1, 2]}
-=======
-{"question_id": "2hop__132472_684936", "hop_count": 2, "predicted_answer": "Mutual Film Corporation", "gold_answer": "BAC", "gold_aliases": [], "retrieved_indices": [0, 1, 2]}
->>>>>>> Stashed changes
 {"question_id": "2hop__123214_22402", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "nearly 25,000", "gold_aliases": ["University of Zurich"], "retrieved_indices": [0, 12, 14]}
 {"question_id": "3hop2__127483_60649_10557", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "Medieval Latin", "gold_aliases": [], "retrieved_indices": [13, 9, 4]}
 {"question_id": "2hop__532383_768138", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Matthew Lawrence", "gold_aliases": [], "retrieved_indices": [3, 18, 9]}
