@@ -8,28 +8,8 @@ from __future__ import annotations
 
 import pytest
 
-from src.data.musique_loader import DecompositionStep, MuSiQueRecord, Paragraph
 from evaluation.retrieval_eval import evaluate_retrieval, score_one
-
-
-def make_record(question_id: str, supporting: tuple[int, ...]) -> MuSiQueRecord:
-    paragraphs = tuple(
-        Paragraph(idx=i, title=f"T{i}", paragraph_text=f"text {i}", is_supporting=i in supporting)
-        for i in range(20)
-    )
-    decomposition = tuple(
-        DecompositionStep(id=n + 1, question=f"q{n}", answer=f"a{n}", paragraph_support_idx=idx)
-        for n, idx in enumerate(sorted(supporting))
-    )
-    return MuSiQueRecord(
-        id=question_id,
-        question="a question?",
-        answer="an answer",
-        answer_aliases=(),
-        paragraphs=paragraphs,
-        question_decomposition=decomposition,
-        raw={},
-    )
+from conftest import build_record as make_record
 
 
 def retriever_returning(order: list[int]):

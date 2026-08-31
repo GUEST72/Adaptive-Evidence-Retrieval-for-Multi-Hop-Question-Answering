@@ -261,3 +261,16 @@ PROVIDERS: dict[str, Callable[[str, str, int, float], str]] = {
     "gemini": gemini_complete,
     "ollama": ollama_complete,
 }
+
+
+def register_provider(name: str, complete: Callable[[str, str, int, float], str]) -> None:
+    """Add a backend at runtime.
+
+    Lets an environment that has hardware the repo does not assume — a GPU
+    notebook loading a model through transformers, say — plug itself in without
+    torch becoming a dependency of the laptop install. See
+    notebooks/run_eval_gpu.ipynb.
+    """
+    if not callable(complete):
+        raise TypeError(f"Provider {name!r} must be callable.")
+    PROVIDERS[name] = complete

@@ -249,3 +249,15 @@ def test_call_llm_dispatches_to_the_named_provider(tmp_path, monkeypatch) -> Non
     assert llm_client.call_llm("q", model="m", provider="ollama") == "dispatched"
     assert seen["provider_used"] is True
     llm_cache.close()
+
+
+def test_register_provider_adds_a_backend(monkeypatch) -> None:
+    monkeypatch.setitem(providers.PROVIDERS, "placeholder_gpu", lambda *a: "")
+    providers.register_provider("placeholder_gpu", lambda p, m, t, temp: "from gpu")
+
+    assert providers.PROVIDERS["placeholder_gpu"]("q", "m", 64, 0.0) == "from gpu"
+
+
+def test_register_provider_rejects_non_callables() -> None:
+    with pytest.raises(TypeError):
+        providers.register_provider("bad", "not a function")  # type: ignore[arg-type]

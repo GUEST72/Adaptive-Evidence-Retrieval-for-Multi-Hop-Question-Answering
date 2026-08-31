@@ -203,8 +203,23 @@ python -m pytest tests/ -v
 ```
 
 Available configs: `baseline.yaml` (Groq, n=300, reported numbers),
-`baseline_fast.yaml` (n=100, quick checks), `baseline_gemini.yaml` (Gemini,
-n=300), `baseline_local.yaml` (Ollama, no quota).
+`baseline_fast.yaml` (n=100, quick checks), `baseline_gpu.yaml` (GPU notebook),
+`baseline_gemini.yaml` (Gemini — 20 requests/day, spot checks only),
+`baseline_local.yaml` (Ollama).
+
+### Running the sweep on a free GPU
+
+Hosted free tiers cannot finish this sweep: Groq allows 200k tokens/day (k=10
+at n=300 alone needs ~299k) and Gemini allows 20 requests/day per model. A free
+Colab or Kaggle T4 has no such ceiling and runs all three k values in about an
+hour, repeatable whenever the retriever changes.
+
+Open `notebooks/run_eval_gpu.ipynb` in Colab or Kaggle, enable the GPU, and run
+it top to bottom. It loads an open model through `transformers` and registers it
+with `providers.register_provider('hf_local', ...)`, so the pipeline is
+unchanged and `torch` never becomes a dependency of the local install. The run
+loop lives in `baseline/runner.py` precisely so the notebook can call it
+in-process — a subprocess would not see a provider registered at runtime.
 
 ## Results
 

@@ -1,0 +1,5 @@
+{"question_id": "2hop__59612_42352", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "2 million", "gold_aliases": [], "retrieved_indices": [2, 5, 4, 13, 0]}
+{"question_id": "3hop1__145411_443779_52195", "hop_count": 3, "predicted_answer": "unknown", "gold_answer": "Francisco Guterres", "gold_aliases": [], "retrieved_indices": [4, 14, 11, 8, 2]}
+{"question_id": "2hop__95970_456836", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "La Goulette", "gold_aliases": [], "retrieved_indices": [7, 17, 5, 3, 2]}
+{"question_id": "2hop__25797_25855", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "PowerShare", "gold_aliases": [], "retrieved_indices": [1, 5, 4, 6, 11]}
+{"question_id": "2hop__301587_233146", "hop_count": 2, "predicted_answer": "unknown", "gold_answer": "Amschel Moses Rothschild", "gold_aliases": [], "retrieved_indices": [7, 16, 3, 9, 1]}

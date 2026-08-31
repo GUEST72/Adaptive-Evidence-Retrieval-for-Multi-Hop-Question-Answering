@@ -1,0 +1,14 @@
+# GPU-hosted open model, run from notebooks/run_eval_gpu.ipynb on a free
+# Colab/Kaggle GPU. No daily quota and no rate limit — the whole k sweep runs
+# end to end and can be repeated whenever the retriever changes.
+#
+# `hf_local` is registered by the notebook at runtime via
+# providers.register_provider, so torch never becomes a laptop dependency.
+provider: hf_local
+model: Qwen/Qwen2.5-7B-Instruct
+k: 5
+split: dev
+sample_size: 300
+seed: 13             # fixes which records the sample draws
+prompt_path: baseline/prompts/qa_prompt.txt
+retriever: placeholder   # switch to "bm25" once Task 2 is merged
