@@ -21,6 +21,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import yaml
 
 from src.data.musique_loader import load_split
+from baseline import llm_cache
+from baseline.llm_client import DailyTokenLimitExceeded, set_cache_enabled
 from baseline.placeholder_retriever import retrieve as placeholder_retrieve
 from baseline.qa_pipeline import answer_question
 from evaluation.qa_eval import evaluate
@@ -34,7 +36,14 @@ RETRIEVERS = {
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=Path, default=Path("configs/baseline.yaml"))
+    parser.add_argument(
+        "--no-cache",
+        action="store_true",
+        help="Bypass the response cache and re-query the API (costs daily token budget).",
+    )
     args = parser.parse_args()
+
+    set_cache_enabled(not args.no_cache)
 
     config = yaml.safe_load(args.config.read_text(encoding="utf-8"))
 
@@ -54,11 +63,21 @@ def main() -> int:
     # Written as we go: a sweep is hundreds of API calls, and a crash partway
     # through should not throw away the answers already paid for.
     results = []
+    exhausted = False
     with (out_dir / f"predictions_k{config['k']}.jsonl").open("w", encoding="utf-8") as handle:
         for position, record in enumerate(records, start=1):
-            result = answer_question(
-                record, retrieve=retriever, k=config["k"], model=config["model"], split=config["split"]
-            )
+            try:
+                result = answer_question(
+                    record, retrieve=retriever, k=config["k"], model=config["model"], split=config["split"]
+                )
+            except DailyTokenLimitExceeded as error:
+                # Not retryable in any useful timeframe; keep what is already
+                # answered and report on it rather than discarding the run.
+                print(f"\nDaily token budget exhausted at {position}/{len(records)}.", file=sys.stderr)
+                print(f"  {error}", file=sys.stderr)
+                exhausted = True
+                break
+
             results.append(result)
             handle.write(json.dumps(result.__dict__) + "\n")
             handle.flush()
@@ -66,13 +85,23 @@ def main() -> int:
             if position % 25 == 0 or position == len(records):
                 print(f"  ...{position}/{len(records)}", file=sys.stderr, flush=True)
 
+    if not results:
+        print("No questions were answered; nothing to score.", file=sys.stderr)
+        return 1
+
+    print(
+        f"cache: {llm_cache.hits} hit(s), {llm_cache.misses} miss(es)"
+        f"{'  [PARTIAL RUN]' if exhausted else ''}",
+        file=sys.stderr,
+    )
+
     report = evaluate(results)
 
     print(f"Overall  EM={report.overall.em:.3f}  F1={report.overall.f1:.3f}  (n={report.overall.count})")
     for hop, metrics in report.by_hop.items():
         print(f"{hop}-hop  EM={metrics.em:.3f}  F1={metrics.f1:.3f}  (n={metrics.count})")
 
-    return 0
+    return 1 if exhausted else 0
 
 
 if __name__ == "__main__":
