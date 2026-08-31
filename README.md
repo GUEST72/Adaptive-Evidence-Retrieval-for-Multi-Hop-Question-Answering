@@ -8,9 +8,8 @@ baseline.
 
 ## MuSiQue-Ans dataset foundation
 
-The current implementation scope is dataset acquisition guidance, schema
-validation, and exploratory analysis for MuSiQue-Ans. It intentionally does not
-implement retrieval, answer generation, RAG, or model inference.
+The current implementation covers MuSiQue-Ans loading/validation/EDA and a
+closed BM25 evidence retriever. It does not yet implement answer generation.
 
 ### Environment
 
@@ -53,3 +52,21 @@ jupyter notebook notebooks/01_dataset_eda.ipynb
 
 The loader, validator, tests, and notebook are added after the source data is
 available so their schema assumptions can be checked against the actual release.
+
+## BM25 retrieval (Task 2)
+
+Closed, per-question BM25 over each question's own 20 paragraphs. No LLM.
+
+```powershell
+python -m src.evaluation.retrieval_eval --split dev --k 1 2 3 5 10
+```
+
+Interface Task 3 should call:
+
+```python
+from src.retrieval.bm25_retriever import retrieve
+
+retrieve(query, question_id, k)
+```
+
+Details, tokenization, and Recall@k numbers: [src/retrieval/README.md](src/retrieval/README.md).
