@@ -48,25 +48,29 @@ def main() -> int:
 
     retriever = RETRIEVERS[config["retriever"]]
 
+    out_dir = Path("baseline/results")
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    # Written as we go: a sweep is hundreds of API calls, and a crash partway
+    # through should not throw away the answers already paid for.
     results = []
-    for position, record in enumerate(records, start=1):
-        results.append(
-            answer_question(record, retrieve=retriever, k=config["k"], model=config["model"], split=config["split"])
-        )
-        if position % 25 == 0 or position == len(records):
-            print(f"  ...{position}/{len(records)}", file=sys.stderr, flush=True)
+    with (out_dir / f"predictions_k{config['k']}.jsonl").open("w", encoding="utf-8") as handle:
+        for position, record in enumerate(records, start=1):
+            result = answer_question(
+                record, retrieve=retriever, k=config["k"], model=config["model"], split=config["split"]
+            )
+            results.append(result)
+            handle.write(json.dumps(result.__dict__) + "\n")
+            handle.flush()
+
+            if position % 25 == 0 or position == len(records):
+                print(f"  ...{position}/{len(records)}", file=sys.stderr, flush=True)
 
     report = evaluate(results)
 
     print(f"Overall  EM={report.overall.em:.3f}  F1={report.overall.f1:.3f}  (n={report.overall.count})")
     for hop, metrics in report.by_hop.items():
         print(f"{hop}-hop  EM={metrics.em:.3f}  F1={metrics.f1:.3f}  (n={metrics.count})")
-
-    out_dir = Path("baseline/results")
-    out_dir.mkdir(parents=True, exist_ok=True)
-    with (out_dir / f"predictions_k{config['k']}.jsonl").open("w", encoding="utf-8") as handle:
-        for result in results:
-            handle.write(json.dumps(result.__dict__) + "\n")
 
     return 0
 

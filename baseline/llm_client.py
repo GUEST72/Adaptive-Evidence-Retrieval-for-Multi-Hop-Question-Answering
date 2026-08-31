@@ -38,6 +38,18 @@ def _parse_duration(text: str | None) -> float:
     return sum(float(value) * _UNIT_SECONDS[unit] for value, unit in _DURATION_RE.findall(text))
 
 
+def _reset_client() -> None:
+    """Drop the connection pool after a transport failure.
+
+    A dropped or slept-through connection leaves dead sockets pooled, so the
+    next request fails the same way; rebuilding the client clears them.
+    """
+    global _client
+    if _client is not None:
+        _client.close()
+        _client = None
+
+
 def _get_client() -> httpx.Client:
     global _client
     if _client is None:
@@ -85,7 +97,17 @@ def call_llm(prompt: str, model: str, max_tokens: int = 512, temperature: float 
     # budget, so rate limiting is expected rather than exceptional. Back off and
     # retry instead of losing an entire run to one 429.
     for attempt in range(MAX_ATTEMPTS):
-        response = client.post(API_URL, json=payload)
+        try:
+            response = client.post(API_URL, json=payload)
+        except httpx.TransportError:
+            # Dropped connections and read timeouts are transport-level, so
+            # they never reach the status check below.
+            if attempt == MAX_ATTEMPTS - 1:
+                raise
+            _reset_client()
+            client = _get_client()
+            time.sleep(min(2.0**attempt, MAX_SLEEP_SECONDS))
+            continue
 
         if response.status_code in RETRY_STATUS_CODES and attempt < MAX_ATTEMPTS - 1:
             delay = _parse_duration(response.headers.get("retry-after")) or float(
