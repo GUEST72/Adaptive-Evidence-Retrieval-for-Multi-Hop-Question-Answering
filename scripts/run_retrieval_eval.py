@@ -19,11 +19,12 @@ import yaml
 
 from src.data.musique_loader import load_split
 from baseline.placeholder_retriever import retrieve as placeholder_retrieve
+from src.retrieval.bm25_retriever import retrieve as bm25_retrieve
 from evaluation.retrieval_eval import evaluate_retrieval
 
 RETRIEVERS = {
     "placeholder": placeholder_retrieve,
-    # "bm25": bm25_retrieve,  # wire in once retrieval/bm25_retriever.py exists
+    "bm25": bm25_retrieve,
 }
 
 

@@ -85,20 +85,38 @@ sample, with **no API calls** (`python scripts/run_retrieval_eval.py`, ~9s).
 A MuSiQue question is only answerable if *every* supporting paragraph is
 retrieved, so "all gold" is the practical ceiling on EM:
 
+**BM25** (`retriever: bm25`, Task 2 — the retriever now in use):
+
+| k | recall | all gold retrieved | MRR |
+| ---: | ---: | ---: | ---: |
+| 3 | 41.2% | 8.7% | 0.656 |
+| 5 | 53.4% | 17.3% | 0.681 |
+| 10 | 69.1% | 38.0% | 0.689 |
+
+**Placeholder** (lexical overlap, superseded — kept for comparison):
+
 | k | recall | all gold retrieved | MRR |
 | ---: | ---: | ---: | ---: |
 | 3 | 21.1% | 2.3% | 0.342 |
 | 5 | 30.9% | 6.3% | 0.375 |
 | 10 | 50.9% | 18.7% | 0.407 |
 
+BM25 roughly doubles recall at every k and lifts the EM ceiling at k=10 from
+18.7% to 38.0%. MRR nearly doubles, so gold paragraphs also rank higher, not
+just appear more often. Much of the gain comes from BM25 indexing
+`title + paragraph_text` where the placeholder scored the body alone — MuSiQue
+titles are entity names the question usually mentions.
+
 Broken down by hop count, it degrades sharply with reasoning depth. 4-hop at
 k=3 is structurally impossible — four gold paragraphs cannot fit in three slots:
 
-| all gold retrieved | 2-hop | 3-hop | 4-hop |
+BM25, all gold retrieved by hop count:
+
+| | 2-hop | 3-hop | 4-hop |
 | ---: | ---: | ---: | ---: |
-| k=3 | 4.5% | 0.0% | 0.0% |
-| k=5 | 11.5% | 1.0% | 0.0% |
-| k=10 | 30.6% | 7.1% | 2.3% |
+| k=3 | 15.3% | 2.0% | 0.0% |
+| k=5 | 29.3% | 5.1% | 2.3% |
+| k=10 | 49.7% | 25.3% | 25.0% |
 
 This is the headline weakness of the baseline and the direct motivation for
 Task 2 (BM25) and the adaptive retrieval work after it.

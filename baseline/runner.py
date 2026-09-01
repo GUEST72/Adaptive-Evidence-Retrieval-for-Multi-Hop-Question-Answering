@@ -105,7 +105,10 @@ def run_baseline(
         records = select_records(config)
 
     results_dir.mkdir(parents=True, exist_ok=True)
-    predictions_path = results_dir / f"predictions_k{config['k']}.jsonl"
+    # The retriever is part of the name: with more than one retriever in the
+    # repo, a k-only name lets one sweep silently overwrite another's results.
+    retriever_name = config.get("retriever", "placeholder")
+    predictions_path = results_dir / f"predictions_{retriever_name}_k{config['k']}.jsonl"
 
     results: list[QAResult] = []
     exhausted = False

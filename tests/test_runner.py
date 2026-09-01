@@ -70,7 +70,7 @@ def test_predictions_are_flushed_as_the_run_proceeds(tmp_path, monkeypatch, make
 
     def provider(prompt, model, max_tokens, temperature):
         # By the second question the first must already be durable on disk.
-        path = tmp_path / "predictions_k2.jsonl"
+        path = tmp_path / "predictions_placeholder_k2.jsonl"
         seen_midway.setdefault("lines", []).append(
             len([l for l in path.read_text().splitlines() if l.strip()]) if path.exists() else 0
         )
