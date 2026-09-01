@@ -8,8 +8,11 @@ baseline.
 
 ## MuSiQue-Ans dataset foundation
 
-The current implementation covers MuSiQue-Ans loading/validation/EDA and a
-closed BM25 evidence retriever. It does not yet implement answer generation.
+The current implementation covers MuSiQue-Ans loading/validation/EDA (Task 1),
+a closed BM25 evidence retriever (Task 2), and an end-to-end retrieve-then-answer
+QA baseline with EM/F1 scoring (Task 3). Decomposition, iterative retrieval, and
+adaptive hop selection are not implemented yet — they are the point of the
+project, and the baseline below is what they have to beat.
 
 ### Environment
 
@@ -97,8 +100,11 @@ retrieve(query, question_id, k)
 Each returned item includes paragraph `idx`, `title`, `text`, BM25
 `score`, and `is_supporting` (gold label, for debugging only). Optional
 kwargs: `split` (default `"dev"`), `data_dir`, `validate`. Official
-MuSiQue-Ans has a handful of records with 18–19 paragraphs, so
-`validate` defaults to `False` so the full split can be scored.
+MuSiQue-Ans has a handful of records with 16–19 paragraphs (16 in dev, 21 in
+train). The loader originally rejected these, so `validate` defaults to `False`
+here; the loader has since been corrected to accept short contexts while still
+requiring paragraph indices to be exactly `0..n-1`, so `validate=True` now works
+on the real release too.
 
 ### Retrieval evaluation
 
@@ -156,3 +162,63 @@ is what decomposition and iterative retrieval are meant to close.
 
 More detail (limitations, loader caching, return schema):
 [src/retrieval/README.md](src/retrieval/README.md).
+
+## Retrieve-then-answer baseline (Task 3)
+
+The first end-to-end pipeline:
+
+```text
+Question -> Retrieve once -> Top-k paragraphs -> LLM -> Final answer -> EM/F1
+```
+
+A single retrieval call and a single LLM call per question. No decomposition, no
+iteration, no adaptive stopping — deliberately, so later work has an honest
+floor to improve on.
+
+```powershell
+python scripts/run_baseline.py --config configs/baseline.yaml
+python scripts/run_retrieval_eval.py --config configs/baseline.yaml
+python -m pytest tests/ -q
+```
+
+The retriever is a config choice (`retriever:` in `configs/*.yaml`) resolved
+through `baseline/retrievers.py`; the LLM backend is likewise `provider:`.
+Swapping either requires no pipeline code changes.
+
+### Results
+
+300 dev questions sampled with `seed: 13` (157/99/44 across 2/3/4-hop), reader
+held constant at `Qwen/Qwen2.5-7B-Instruct` (4-bit, Colab T4):
+
+| k | placeholder EM | BM25 EM | placeholder F1 | BM25 F1 |
+| ---: | ---: | ---: | ---: | ---: |
+| 3 | 0.047 | **0.107** | 0.065 | **0.137** |
+| 5 | 0.063 | **0.127** | 0.093 | **0.169** |
+| 10 | 0.113 | **0.157** | 0.159 | **0.221** |
+
+Replacing the pre-Task-2 lexical placeholder with BM25 — same reader, same
+sample, same prompt — more than doubles EM at k=3 and k=5.
+
+The more informative number is grounding. Counting correct answers that arrived
+*without* all gold paragraphs retrieved, i.e. recalled rather than read:
+
+| retriever | k=3 | k=5 | k=10 |
+| --- | ---: | ---: | ---: |
+| placeholder | 79% | 68% | 59% |
+| bm25 | 62% | 50% | **19%** |
+
+BM25 does not just raise the score, it makes the score mean what it should.
+
+Absolute EM stays low because single-shot retrieval caps it: even with BM25,
+all gold paragraphs are retrieved for only 38% of questions at k=10, and 3-hop
+and 4-hop sit at 0.091 EM against 0.217 for 2-hop. Closing that is what
+decomposition and iterative retrieval are for.
+
+Note the two retrieval evaluations are independent implementations —
+`src/evaluation/retrieval_eval.py` (Task 2, full 2,417-question split) and
+`evaluation/retrieval_eval.py` (Task 3, the seeded 300-question sample). They
+agree closely: full-support coverage at k=10 is 0.387 and 0.380 respectively,
+which is a useful cross-check rather than a redundancy.
+
+Full detail — prompt, normalisation, provider budgets, response caching, run
+provenance, and the GPU notebook: [baseline/README.md](baseline/README.md).

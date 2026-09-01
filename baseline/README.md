@@ -18,9 +18,14 @@ change — `qa_pipeline.py` only ever calls `call_llm`. See
 
 | provider | model | why |
 | --- | --- | --- |
-| `groq` (default) | `openai/gpt-oss-120b` | fast, but only 200k tokens/day free |
+| `hf_local` | `Qwen/Qwen2.5-7B-Instruct` | **produced the reported results**; free Colab/Kaggle GPU, no per-token quota |
+| `groq` | `openai/gpt-oss-120b` | fast and strong, but only 200k tokens/day free |
 | `gemini` | `gemini-3.5-flash` | 20 requests/day/model free — spot checks only |
-| `ollama` | `qwen2.5:7b-instruct` | local, no quota at all |
+| `ollama` | `qwen2.5:7b-instruct` | local, no quota, needs a capable machine |
+
+`hf_local` is registered at runtime by `notebooks/run_eval_gpu.ipynb` via
+`providers.register_provider`, so `torch` never becomes a dependency of the
+local install. The other three live in `baseline/providers.py`.
 
 Called with `max_tokens=512`, `temperature=0.0`. Keys are read from `.env` via
 `python-dotenv` (`GROQ_API_KEY` / `GEMINI_API_KEY`); `.env` is gitignored.
