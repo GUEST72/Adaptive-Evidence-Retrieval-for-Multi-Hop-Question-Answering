@@ -93,3 +93,49 @@ def test_scoring_matches_the_written_predictions(tmp_path, monkeypatch, make_rec
     # make_record's gold answer is "an answer", so this is an exact match.
     assert outcome.report.overall.count == 1
     assert outcome.report.overall.em == pytest.approx(1.0)
+
+
+def test_run_writes_provenance_beside_the_predictions(tmp_path, monkeypatch, make_record) -> None:
+    monkeypatch.setitem(providers.PROVIDERS, "stub", lambda p, m, t, temp: "Paris")
+    config = {**BASE_CONFIG, "sample_size": 2, "seed": 13, "retriever": "placeholder"}
+
+    outcome = run_baseline(config, stub_retriever, records=[make_record("q1", (0, 1))], results_dir=tmp_path)
+
+    meta = json.loads(outcome.metadata_path.read_text())
+    assert meta["model"] == "stub-model"
+    assert meta["provider"] == "stub"
+    assert meta["k"] == 2
+    assert meta["seed"] == 13
+    assert meta["questions_answered"] == 1
+    assert meta["complete"] is True
+    assert len(meta["prompt_sha256"]) == 16
+
+
+def test_provenance_marks_an_interrupted_run_incomplete(tmp_path, monkeypatch, make_record) -> None:
+    def failing(prompt, model, max_tokens, temperature):
+        raise DailyTokenLimitExceeded("tokens per day (TPD): Limit 200000")
+
+    monkeypatch.setitem(providers.PROVIDERS, "stub", failing)
+
+    outcome = run_baseline(BASE_CONFIG, stub_retriever, records=[make_record("q1", (0, 1))], results_dir=tmp_path)
+
+    meta = json.loads(outcome.metadata_path.read_text())
+    assert meta["complete"] is False
+    assert meta["questions_answered"] == 0
+
+
+def test_prompt_digest_changes_when_the_template_changes(tmp_path, monkeypatch, make_record) -> None:
+    monkeypatch.setitem(providers.PROVIDERS, "stub", lambda p, m, t, temp: "Paris")
+    records = [make_record("q1", (0, 1))]
+
+    default = run_baseline(BASE_CONFIG, stub_retriever, records=records, results_dir=tmp_path)
+    digest_default = json.loads(default.metadata_path.read_text())["prompt_sha256"]
+
+    variant = tmp_path / "variant.txt"
+    variant.write_text("VARIANT {evidence} {question}", encoding="utf-8")
+    changed = run_baseline(
+        {**BASE_CONFIG, "prompt_path": str(variant)}, stub_retriever, records=records, results_dir=tmp_path
+    )
+    digest_changed = json.loads(changed.metadata_path.read_text())["prompt_sha256"]
+
+    assert digest_default != digest_changed

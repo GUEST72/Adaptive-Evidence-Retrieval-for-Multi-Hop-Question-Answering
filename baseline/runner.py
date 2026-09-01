@@ -7,17 +7,20 @@ subprocess would not inherit that registration.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import random
+import subprocess
 import sys
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 from src.data.musique_loader import MuSiQueRecord, load_split
 from baseline import llm_cache
 from baseline.providers import DailyTokenLimitExceeded, ProviderUnavailable
-from baseline.qa_pipeline import QAResult, answer_question
+from baseline.qa_pipeline import QAResult, answer_question, resolve_prompt_path
 from evaluation.qa_eval import EvalReport, evaluate
 
 RESULTS_DIR = Path("baseline/results")
@@ -30,6 +33,51 @@ class RunOutcome:
     results: list[QAResult]
     exhausted: bool
     predictions_path: Path
+    metadata_path: Path | None = None
+
+
+def _git_commit() -> str | None:
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+            cwd=Path(__file__).resolve().parents[1],
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return result.stdout.strip() or None if result.returncode == 0 else None
+
+
+def run_metadata(
+    config: Mapping[str, Any], answered: int, exhausted: bool
+) -> dict[str, Any]:
+    """Provenance for one run.
+
+    A predictions file records only answers, so nothing in it says which reader
+    produced them — enough to mix up two models' results. The prompt digest is
+    included because a changed template silently invalidates any comparison
+    between runs.
+    """
+    prompt_path = resolve_prompt_path(config.get("prompt_path"))
+    prompt_text = prompt_path.read_text(encoding="utf-8")
+
+    return {
+        "provider": config.get("provider", "groq"),
+        "model": config["model"],
+        "k": config["k"],
+        "split": config["split"],
+        "sample_size": config.get("sample_size"),
+        "seed": config.get("seed", 0),
+        "retriever": config.get("retriever"),
+        "prompt_path": str(prompt_path.name),
+        "prompt_sha256": hashlib.sha256(prompt_text.encode("utf-8")).hexdigest()[:16],
+        "questions_answered": answered,
+        "complete": not exhausted,
+        "run_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "git_commit": _git_commit(),
+    }
 
 
 def select_records(config: Mapping[str, Any]) -> list[MuSiQueRecord]:
@@ -93,11 +141,18 @@ def run_baseline(
             if position % PROGRESS_EVERY == 0 or position == len(records):
                 print(f"  ...{position}/{len(records)}", file=sys.stderr, flush=True)
 
+    metadata_path = predictions_path.with_suffix(".meta.json")
+    metadata_path.write_text(
+        json.dumps(run_metadata(config, len(results), exhausted), indent=2) + "\n",
+        encoding="utf-8",
+    )
+
     return RunOutcome(
         report=evaluate(results),
         results=results,
         exhausted=exhausted,
         predictions_path=predictions_path,
+        metadata_path=metadata_path,
     )
 
 
