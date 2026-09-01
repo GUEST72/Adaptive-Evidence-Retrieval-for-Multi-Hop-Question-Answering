@@ -20,6 +20,7 @@ from typing import Any, Mapping, Sequence
 from src.data.musique_loader import MuSiQueRecord, load_split
 from baseline import llm_cache
 from baseline.providers import DailyTokenLimitExceeded, ProviderUnavailable
+from baseline.retrievers import RETRIEVERS, get_retriever
 from baseline.qa_pipeline import QAResult, answer_question, resolve_prompt_path
 from evaluation.qa_eval import EvalReport, evaluate
 
@@ -97,17 +98,30 @@ def select_records(config: Mapping[str, Any]) -> list[MuSiQueRecord]:
 
 def run_baseline(
     config: Mapping[str, Any],
-    retrieve,
+    retrieve=None,
     records: Sequence[MuSiQueRecord] | None = None,
     results_dir: Path = RESULTS_DIR,
 ) -> RunOutcome:
+    retriever_name = config.get("retriever", "placeholder")
+
+    if retrieve is None:
+        retrieve = get_retriever(retriever_name)
+    elif retriever_name in RETRIEVERS and retrieve is not RETRIEVERS[retriever_name]:
+        # The filename and the provenance record both come from the config, so
+        # a caller passing a different function than the config names produces
+        # results labelled as a retriever that never ran.
+        raise ValueError(
+            f"config names retriever {retriever_name!r} but a different function was "
+            f"passed. Omit `retrieve` to use the configured one, or set "
+            f"`retriever:` to match."
+        )
+
     if records is None:
         records = select_records(config)
 
     results_dir.mkdir(parents=True, exist_ok=True)
     # The retriever is part of the name: with more than one retriever in the
     # repo, a k-only name lets one sweep silently overwrite another's results.
-    retriever_name = config.get("retriever", "placeholder")
     predictions_path = results_dir / f"predictions_{retriever_name}_k{config['k']}.jsonl"
 
     results: list[QAResult] = []

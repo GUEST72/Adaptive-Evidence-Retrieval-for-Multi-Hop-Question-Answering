@@ -18,14 +18,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import yaml
 
 from src.data.musique_loader import load_split
-from baseline.placeholder_retriever import retrieve as placeholder_retrieve
-from src.retrieval.bm25_retriever import retrieve as bm25_retrieve
+from baseline.retrievers import get_retriever
 from evaluation.retrieval_eval import evaluate_retrieval
-
-RETRIEVERS = {
-    "placeholder": placeholder_retrieve,
-    "bm25": bm25_retrieve,
-}
 
 
 def main() -> int:
@@ -41,7 +35,7 @@ def main() -> int:
         rng = random.Random(config.get("seed", 0))
         records = rng.sample(records, min(config["sample_size"], len(records)))
 
-    retriever = RETRIEVERS[config["retriever"]]
+    retriever = get_retriever(config["retriever"])
 
     print(f"retriever={config['retriever']}  split={config['split']}  n={len(records)}")
     print(f"{'k':>4} {'hops':>5} {'n':>5} {'recall':>8} {'all gold':>9} {'MRR':>7}")

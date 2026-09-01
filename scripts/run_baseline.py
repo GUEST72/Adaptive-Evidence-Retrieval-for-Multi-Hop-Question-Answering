@@ -20,14 +20,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import yaml
 
 from baseline.llm_client import set_cache_enabled
-from baseline.placeholder_retriever import retrieve as placeholder_retrieve
-from src.retrieval.bm25_retriever import retrieve as bm25_retrieve
+from baseline.retrievers import get_retriever
 from baseline.runner import print_report, run_baseline
-
-RETRIEVERS = {
-    "placeholder": placeholder_retrieve,
-    "bm25": bm25_retrieve,
-}
 
 
 def main() -> int:
@@ -43,7 +37,7 @@ def main() -> int:
     set_cache_enabled(not args.no_cache)
     config = yaml.safe_load(args.config.read_text(encoding="utf-8"))
 
-    outcome = run_baseline(config, retrieve=RETRIEVERS[config["retriever"]])
+    outcome = run_baseline(config)
 
     if not outcome.results:
         print("No questions were answered; nothing to score.", file=sys.stderr)

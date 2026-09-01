@@ -133,9 +133,16 @@ def __call__(self, query: str, question_id: str, k: int) -> list[RetrievedParagr
 `baseline/qa_pipeline.py` contains no retriever-specific logic. Integration once
 Task 2 lands is exactly two edits:
 
-1. Add `"bm25": bm25_retrieve` to `RETRIEVERS` in `scripts/run_baseline.py`
-   (and in `scripts/run_retrieval_eval.py` to score it offline).
+1. Add `"bm25": bm25_retrieve` to `RETRIEVERS` in `baseline/retrievers.py`.
 2. Change `retriever: placeholder` → `retriever: bm25` in the config.
+
+`baseline/retrievers.py` is the single registry both entrypoints and the GPU
+notebook resolve through. `run_baseline` takes the retriever from the config and
+refuses a caller that passes a different function than the config names — the
+filename and provenance are derived from the config, so a mismatch produces
+results labelled as a retriever that never ran. That is not hypothetical: it
+happened once, and the cache made every call a hit, so a full "BM25" sweep
+returned byte-identical placeholder output in seconds.
 
 The placeholder takes an extra `split: str = "dev"` keyword beyond the three
 required arguments. The pipeline only ever passes the three required ones, so a

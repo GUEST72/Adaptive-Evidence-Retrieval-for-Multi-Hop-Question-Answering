@@ -18,7 +18,9 @@ def stub_retriever(query, question_id, k):
     return [{"idx": i, "title": f"T{i}", "text": f"text {i}", "score": 1.0} for i in range(k)]
 
 
-BASE_CONFIG = {"k": 2, "split": "dev", "model": "stub-model", "provider": "stub"}
+# retriever "stub" is deliberately not in the registry, so passing a custom
+# function is allowed; naming a registered one and passing something else is not.
+BASE_CONFIG = {"k": 2, "split": "dev", "model": "stub-model", "provider": "stub", "retriever": "stub"}
 
 
 @pytest.fixture(autouse=True)
@@ -70,7 +72,7 @@ def test_predictions_are_flushed_as_the_run_proceeds(tmp_path, monkeypatch, make
 
     def provider(prompt, model, max_tokens, temperature):
         # By the second question the first must already be durable on disk.
-        path = tmp_path / "predictions_placeholder_k2.jsonl"
+        path = tmp_path / "predictions_stub_k2.jsonl"
         seen_midway.setdefault("lines", []).append(
             len([l for l in path.read_text().splitlines() if l.strip()]) if path.exists() else 0
         )
@@ -97,7 +99,7 @@ def test_scoring_matches_the_written_predictions(tmp_path, monkeypatch, make_rec
 
 def test_run_writes_provenance_beside_the_predictions(tmp_path, monkeypatch, make_record) -> None:
     monkeypatch.setitem(providers.PROVIDERS, "stub", lambda p, m, t, temp: "Paris")
-    config = {**BASE_CONFIG, "sample_size": 2, "seed": 13, "retriever": "placeholder"}
+    config = {**BASE_CONFIG, "sample_size": 2, "seed": 13}
 
     outcome = run_baseline(config, stub_retriever, records=[make_record("q1", (0, 1))], results_dir=tmp_path)
 
@@ -139,3 +141,37 @@ def test_prompt_digest_changes_when_the_template_changes(tmp_path, monkeypatch, 
     digest_changed = json.loads(changed.metadata_path.read_text())["prompt_sha256"]
 
     assert digest_default != digest_changed
+
+
+def test_config_retriever_and_passed_function_must_agree(tmp_path, monkeypatch, make_record) -> None:
+    """The failure that produced a set of 'bm25' results from the placeholder.
+
+    The filename and provenance both come from the config, so a caller passing a
+    different function than the config names yields results labelled as a
+    retriever that never ran.
+    """
+    monkeypatch.setitem(providers.PROVIDERS, "stub", lambda p, m, t, temp: "Paris")
+    config = {**BASE_CONFIG, "retriever": "bm25"}
+
+    with pytest.raises(ValueError, match="different function was passed"):
+        run_baseline(config, stub_retriever, records=[make_record("q1", (0, 1))], results_dir=tmp_path)
+
+
+def test_retriever_is_resolved_from_config_when_not_passed(tmp_path, monkeypatch, make_record) -> None:
+    from baseline import retrievers
+
+    seen = {}
+
+    def fake_bm25(query, question_id, k):
+        seen["called"] = True
+        return [{"idx": 0, "title": "T", "text": "body", "score": 1.0}]
+
+    monkeypatch.setitem(retrievers.RETRIEVERS, "bm25", fake_bm25)
+    monkeypatch.setitem(providers.PROVIDERS, "stub", lambda p, m, t, temp: "Paris")
+
+    outcome = run_baseline(
+        {**BASE_CONFIG, "retriever": "bm25"}, records=[make_record("q1", (0, 1))], results_dir=tmp_path
+    )
+
+    assert seen.get("called") is True
+    assert outcome.predictions_path.name == "predictions_bm25_k2.jsonl"
