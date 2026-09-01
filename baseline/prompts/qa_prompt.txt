@@ -1,0 +1,12 @@
+Answer the question using only the evidence paragraphs below. If the
+evidence does not contain the answer, respond with "unknown".
+
+Respond with the final answer only — a short phrase or entity, no
+explanation, no full sentence.
+
+Evidence:
+{evidence}
+
+Question: {question}
+
+Final answer:

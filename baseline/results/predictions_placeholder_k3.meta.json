@@ -1,0 +1,18 @@
+{
+  "provider": "hf_local",
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "model_notes": "4-bit (bitsandbytes nf4) on a Colab T4, via notebooks/run_eval_gpu.ipynb",
+  "k": 3,
+  "split": "dev",
+  "sample_size": 300,
+  "seed": 13,
+  "retriever": "placeholder",
+  "prompt_path": "qa_prompt.txt",
+  "prompt_sha256": "4b4dcf95d853b066",
+  "questions_answered": 300,
+  "complete": true,
+  "run_at": "2026-08-31T14:32:36+00:00",
+  "git_commit": null,
+  "backfilled": true,
+  "backfill_note": "Reconstructed after the fact, not captured at run time: run_at is the predictions file mtime and the commit is unknown. Model and config are from the notebook that produced it. Runs from here on record this automatically."
+}

@@ -1,0 +1,19 @@
+# Open model run on a free Colab/Kaggle GPU, from notebooks/run_eval_gpu.ipynb.
+#
+# Hugging Face is only the weights host here: the notebook downloads the model
+# once and runs generation locally on the GPU, so there is no inference API in
+# the loop and no per-token or per-request quota. The limit is GPU time
+# instead — Kaggle allows roughly 30 GPU-hours/week and one full k sweep costs
+# about an hour, so the sweep is repeatable rather than rationed. (Do not
+# confuse this with HF's Inference API, which is metered like any hosted tier.)
+#
+# `hf_local` is registered by the notebook at runtime via
+# providers.register_provider, so torch never becomes a laptop dependency.
+provider: hf_local
+model: Qwen/Qwen2.5-7B-Instruct
+k: 5
+split: dev
+sample_size: 300
+seed: 13             # fixes which records the sample draws
+prompt_path: baseline/prompts/qa_prompt.txt
+retriever: bm25          # Task 2 BM25 (was: placeholder)

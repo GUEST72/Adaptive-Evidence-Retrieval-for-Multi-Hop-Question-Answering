@@ -1,0 +1,12 @@
+# Gemini. NOTE: the free tier allows only 20 requests/day PER MODEL
+# (measured 2026-08-31 on gemini-3.5-flash), so a 300-question sweep is not
+# possible without a paid plan. Kept for spot checks and for when billing is
+# enabled. Needs GEMINI_API_KEY in .env.
+provider: gemini
+model: gemini-3.5-flash
+k: 5
+split: dev
+sample_size: 300
+seed: 13             # fixes which records the sample draws
+prompt_path: baseline/prompts/qa_prompt.txt
+retriever: placeholder   # switch to "bm25" once Task 2 is merged

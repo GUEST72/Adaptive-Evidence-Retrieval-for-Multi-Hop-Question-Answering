@@ -1,0 +1,11 @@
+# Iteration config: same settings as baseline.yaml with a smaller sample, for
+# quick end-to-end checks. Report numbers from baseline.yaml, not this file —
+# at n=100 differences under about 5 EM points are not meaningful.
+provider: groq        # groq | gemini | ollama
+model: openai/gpt-oss-120b
+k: 5
+split: dev
+sample_size: 100
+seed: 13             # fixes which records the sample draws
+prompt_path: baseline/prompts/qa_prompt.txt
+retriever: placeholder   # switch to "bm25" once Task 2 is merged

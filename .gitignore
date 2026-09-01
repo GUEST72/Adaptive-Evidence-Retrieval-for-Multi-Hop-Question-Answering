@@ -19,3 +19,6 @@ Thumbs.db
 
 # Locally acquired third-party dataset files (documentation remains tracked)
 data/musique_ans/*.jsonl
+
+# Local LLM response cache (see baseline/llm_cache.py)
+.cache/
