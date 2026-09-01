@@ -19,7 +19,7 @@ change — `qa_pipeline.py` only ever calls `call_llm`. See
 | provider | model | why |
 | --- | --- | --- |
 | `groq` (default) | `openai/gpt-oss-120b` | fast, but only 200k tokens/day free |
-| `gemini` | `gemini-2.5-flash` | much larger free daily budget; fits a full sweep |
+| `gemini` | `gemini-3.5-flash` | 20 requests/day/model free — spot checks only |
 | `ollama` | `qwen2.5:7b-instruct` | local, no quota at all |
 
 Called with `max_tokens=512`, `temperature=0.0`. Keys are read from `.env` via
@@ -54,7 +54,8 @@ question at k=5 (431 prompt + 54 completion):
 All three sweeps at n=300 need ~500k tokens: 2.5 days of Groq's free tier.
 `baseline/providers.py` detects this specific 429 and stops immediately rather
 than retrying something that cannot be waited out, keeping whatever has already
-been answered. Use `provider: gemini` or `provider: ollama` to avoid the wall.
+been answered. The reported sweep was run instead on a free GPU (see below), which has no
+per-token ceiling.
 
 ### Response caching
 
@@ -235,29 +236,58 @@ in-process — a subprocess would not see a provider registered at runtime.
 
 ## Results
 
-Sample: 300 dev questions drawn with `seed: 13` (157/99/44 across 2/3/4-hop),
-provider `groq`, model `openai/gpt-oss-120b`.
+Sample: the same 300 dev questions for every k, drawn with `seed: 13`
+(157/99/44 across 2/3/4-hop). Reader: **`Qwen/Qwen2.5-7B-Instruct`** in 4-bit on
+a Colab T4, via `notebooks/run_eval_gpu.ipynb`.
 
-### k = 3 (complete)
+| k | n | EM | F1 | 2-hop EM | 3-hop EM | 4-hop EM |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 3 | 300 | 0.047 | 0.065 | 0.045 | 0.040 | 0.068 |
+| 5 | 300 | 0.063 | 0.093 | 0.083 | 0.030 | 0.068 |
+| 10 | 300 | **0.113** | **0.159** | 0.140 | 0.081 | 0.091 |
 
-| | n | EM | F1 |
-| --- | ---: | ---: | ---: |
-| **Overall** | 300 | **0.073** | **0.101** |
-| 2-hop | 157 | 0.096 | 0.126 |
-| 3-hop | 99 | 0.040 | 0.066 |
-| 4-hop | 44 | 0.068 | 0.090 |
+Full hop-wise F1:
 
-### k = 5 and k = 10 — not yet measured
+| k | 2-hop F1 | 3-hop F1 | 4-hop F1 |
+| ---: | ---: | ---: | ---: |
+| 3 | 0.075 | 0.047 | 0.068 |
+| 5 | 0.125 | 0.046 | 0.083 |
+| 10 | 0.200 | 0.115 | 0.113 |
 
-Blocked on the 200k tokens/day limit above: k=5 needs 73% and k=10 needs 128% of
-a full day's free budget, and the k=3 run had already consumed half of it. They
-will be run on `provider: gemini` or `provider: ollama`, which do not have this
-ceiling.
+EM more than doubles from k=3 to k=10, tracking the retrieval table above almost
+exactly: more evidence in the window, more answerable questions. The model
+abstains rather than guesses, and does so less as evidence improves — `unknown`
+falls from 83.7% of answers at k=3 to 74.7% at k=5 to 65.3% at k=10. No empty or
+rambling outputs: median answer length is one word at every k.
 
-Reading the k=3 result: EM 0.073 against a **2.3% all-gold-retrieved ceiling**
-means the reader is answering nearly everything it has actually been given the
-evidence for, plus a little from parametric knowledge. The bottleneck is
-squarely retrieval, not the reader — exactly the gap Task 2 onwards addresses.
+### The scores overstate the pipeline
+
+Correct answers are mostly **not** grounded in the retrieved evidence:
+
+| k | correct | had all gold paragraphs | answered without complete evidence |
+| ---: | ---: | ---: | ---: |
+| 3 | 14 | 3 | 11 (79%) |
+| 5 | 19 | 6 | 13 (68%) |
+| 10 | 34 | 14 | 20 (59%) |
+
+Despite the prompt saying *"using only the evidence paragraphs below"*, the
+majority of right answers arrive when the evidence was incomplete — the reader
+is supplying them from parametric knowledge. This is why EM at k=3 (4.7%)
+exceeds the all-gold-retrieved rate (2.3%): the metric is measuring what the
+model already knew as much as what retrieval delivered.
+
+Two consequences. It inflates the baseline, so improvements from Task 2 will
+look smaller than they are. And the share falls as k rises (79% → 59%), meaning
+better retrieval genuinely does shift the model toward reading rather than
+recalling. Any future comparison should report this alongside EM.
+
+### Earlier `gpt-oss-120b` run (not comparable)
+
+An earlier k=3 sweep on `provider: groq` with `openai/gpt-oss-120b`, same seed
+and sample, scored EM 0.073 / F1 0.101 — above Qwen's 0.047 / 0.065, as expected
+from a far larger reasoning model. Different reader, so it belongs in its own
+row, not in the table above. That run also scored EM 0.063 on a previous day
+from an identical config, which is the noise floor to keep in mind.
 
 ## Known limitations
 
