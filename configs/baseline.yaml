@@ -1,6 +1,6 @@
 provider: groq        # groq | gemini | ollama
 model: openai/gpt-oss-120b
-k: 5
+k: 3
 split: dev
 sample_size: 300     # set to null for full dev
 seed: 13             # fixes which records the sample draws
