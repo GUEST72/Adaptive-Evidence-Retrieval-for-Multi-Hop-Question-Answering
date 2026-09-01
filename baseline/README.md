@@ -66,11 +66,13 @@ sweep resumes for free. Pass `--no-cache` to force fresh calls.
 
 ## Retriever
 
-**Placeholder lexical retriever** (`baseline/placeholder_retriever.py`) — a
-stand-in until Task 2's BM25 retriever is merged. It scores each of a question's
-own paragraphs by query-token overlap, normalised by the square root of
-paragraph length so long paragraphs don't win on size alone, and returns the top
-*k* by score descending.
+**BM25** (`src/retrieval/bm25_retriever.py`, Task 2) is the retriever in use.
+It indexes `title + paragraph_text` for each of a question's own paragraphs and
+ranks them with Okapi BM25.
+
+The **placeholder lexical retriever** (`baseline/placeholder_retriever.py`) is
+kept as the pre-Task-2 comparison point: query-token overlap normalised by the
+square root of paragraph length, scoring the body only.
 
 Retrieval is **closed per question**: only that question's own paragraphs are
 searched — no cross-question or open-domain search. Paragraphs come from the
@@ -261,58 +263,71 @@ in-process — a subprocess would not see a provider registered at runtime.
 
 ## Results
 
-Sample: the same 300 dev questions for every k, drawn with `seed: 13`
-(157/99/44 across 2/3/4-hop). Reader: **`Qwen/Qwen2.5-7B-Instruct`** in 4-bit on
-a Colab T4, via `notebooks/run_eval_gpu.ipynb`.
+Reader held constant across every row: **`Qwen/Qwen2.5-7B-Instruct`** in 4-bit on
+a Colab T4, via `notebooks/run_eval_gpu.ipynb`. Same 300 dev questions for every
+run, drawn with `seed: 13` (157/99/44 across 2/3/4-hop).
 
-| k | n | EM | F1 | 2-hop EM | 3-hop EM | 4-hop EM |
+### BM25 vs placeholder
+
+| k | placeholder EM | BM25 EM | ΔEM | placeholder F1 | BM25 F1 | ΔF1 |
 | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 3 | 300 | 0.047 | 0.065 | 0.045 | 0.040 | 0.068 |
-| 5 | 300 | 0.063 | 0.093 | 0.083 | 0.030 | 0.068 |
-| 10 | 300 | **0.113** | **0.159** | 0.140 | 0.081 | 0.091 |
+| 3 | 0.047 | **0.107** | +0.060 | 0.065 | **0.137** | +0.072 |
+| 5 | 0.063 | **0.127** | +0.063 | 0.093 | **0.169** | +0.077 |
+| 10 | 0.113 | **0.157** | +0.043 | 0.159 | **0.221** | +0.062 |
 
-Full hop-wise F1:
+Swapping the retriever alone — same reader, same sample, same prompt — more than
+doubles EM at k=3 and k=5. The gain is largest at small k, where retrieval was
+the binding constraint; by k=10 the placeholder had already caught up somewhat.
 
-| k | 2-hop F1 | 3-hop F1 | 4-hop F1 |
-| ---: | ---: | ---: | ---: |
-| 3 | 0.075 | 0.047 | 0.068 |
-| 5 | 0.125 | 0.046 | 0.083 |
-| 10 | 0.200 | 0.115 | 0.113 |
+### BM25 by hop count
 
-EM more than doubles from k=3 to k=10, tracking the retrieval table above almost
-exactly: more evidence in the window, more answerable questions. The model
-abstains rather than guesses, and does so less as evidence improves — `unknown`
-falls from 83.7% of answers at k=3 to 74.7% at k=5 to 65.3% at k=10. No empty or
-rambling outputs: median answer length is one word at every k.
+| k | hops | n | EM | F1 |
+| ---: | ---: | ---: | ---: | ---: |
+| 3 | all | 300 | 0.107 | 0.137 |
+| | 2 | 157 | 0.134 | 0.167 |
+| | 3 | 99 | 0.061 | 0.094 |
+| | 4 | 44 | 0.114 | 0.127 |
+| 5 | all | 300 | 0.127 | 0.169 |
+| | 2 | 157 | 0.166 | 0.212 |
+| | 3 | 99 | 0.091 | 0.134 |
+| | 4 | 44 | 0.068 | 0.095 |
+| 10 | all | 300 | **0.157** | **0.221** |
+| | 2 | 157 | 0.217 | 0.282 |
+| | 3 | 99 | 0.091 | 0.156 |
+| | 4 | 44 | 0.091 | 0.149 |
 
-### The scores overstate the pipeline
+The model abstains rather than guesses, and does so less as evidence improves:
+`unknown` falls 67.3% → 62.0% → 48.3% across k=3/5/10 with BM25, against
+83.7% → 74.7% → 65.3% with the placeholder.
 
-Correct answers are mostly **not** grounded in the retrieved evidence:
+### Answers are now better grounded
 
-| k | correct | had all gold paragraphs | answered without complete evidence |
-| ---: | ---: | ---: | ---: |
-| 3 | 14 | 3 | 11 (79%) |
-| 5 | 19 | 6 | 13 (68%) |
-| 10 | 34 | 14 | 20 (59%) |
+Counting correct answers that arrived *without* all gold paragraphs retrieved —
+i.e. supplied from the model's own knowledge despite the prompt restricting it
+to the evidence:
 
-Despite the prompt saying *"using only the evidence paragraphs below"*, the
-majority of right answers arrive when the evidence was incomplete — the reader
-is supplying them from parametric knowledge. This is why EM at k=3 (4.7%)
-exceeds the all-gold-retrieved rate (2.3%): the metric is measuring what the
-model already knew as much as what retrieval delivered.
+| retriever | k | correct | all gold retrieved | ungrounded |
+| --- | ---: | ---: | ---: | ---: |
+| placeholder | 3 | 14 | 3 | 11 (79%) |
+| placeholder | 5 | 19 | 6 | 13 (68%) |
+| placeholder | 10 | 34 | 14 | 20 (59%) |
+| bm25 | 3 | 32 | 12 | 20 (62%) |
+| bm25 | 5 | 38 | 19 | 19 (50%) |
+| bm25 | 10 | 47 | 38 | **9 (19%)** |
 
-Two consequences. It inflates the baseline, so improvements from Task 2 will
-look smaller than they are. And the share falls as k rises (79% → 59%), meaning
-better retrieval genuinely does shift the model toward reading rather than
-recalling. Any future comparison should report this alongside EM.
+This is the most encouraging number here. With the placeholder at k=10, 59% of
+right answers were unsupported by the retrieved evidence; with BM25 that falls to
+19%. The pipeline is not just scoring higher, it is scoring higher *for the right
+reason* — and the remaining EM headroom is now genuinely about retrieval and
+reading rather than recall.
 
-### Earlier `gpt-oss-120b` run (not comparable)
+### Earlier `gpt-oss-120b` runs (not comparable)
 
-An earlier k=3 sweep on `provider: groq` with `openai/gpt-oss-120b`, same seed
-and sample, scored EM 0.073 / F1 0.101 — above Qwen's 0.047 / 0.065, as expected
-from a far larger reasoning model. Different reader, so it belongs in its own
-row, not in the table above. That run also scored EM 0.063 on a previous day
-from an identical config, which is the noise floor to keep in mind.
+A k=3 placeholder sweep on `provider: groq` with `openai/gpt-oss-120b`, same seed
+and sample, scored EM 0.073 / F1 0.101 — above Qwen's 0.047, as expected from a
+far larger reasoning model. Different reader, so it is not in the tables above.
+That run also scored EM 0.063 on a previous day from an identical config, which
+is the noise floor to keep in mind when reading small differences.
 
 ## Known limitations
 

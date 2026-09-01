@@ -1,0 +1,15 @@
+{
+  "provider": "hf_local",
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "k": 5,
+  "split": "dev",
+  "sample_size": 300,
+  "seed": 13,
+  "retriever": "bm25",
+  "prompt_path": "qa_prompt.txt",
+  "prompt_sha256": "4b4dcf95d853b066",
+  "questions_answered": 300,
+  "complete": true,
+  "run_at": "2026-09-01T14:48:07+00:00",
+  "git_commit": "a0db0a4fa1ecefac6298fd53c227956f2f45c13e"
+}
