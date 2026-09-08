@@ -9,10 +9,10 @@ baseline.
 ## MuSiQue-Ans dataset foundation
 
 The current implementation covers MuSiQue-Ans loading/validation/EDA (Task 1),
-a closed BM25 evidence retriever (Task 2), and an end-to-end retrieve-then-answer
-QA baseline with EM/F1 scoring (Task 3). Decomposition, iterative retrieval, and
-adaptive hop selection are not implemented yet — they are the point of the
-project, and the baseline below is what they have to beat.
+a closed BM25 evidence retriever (Task 2), an end-to-end retrieve-then-answer
+QA baseline with EM/F1 scoring (Task 3), and the Week 2 question-decomposition
+infrastructure. Iterative retrieval and adaptive hop selection are not
+implemented yet.
 
 ### Environment
 
@@ -162,6 +162,88 @@ is what decomposition and iterative retrieval are meant to close.
 
 More detail (limitations, loader caching, return schema):
 [src/retrieval/README.md](src/retrieval/README.md).
+
+## Week 2 Task 1: question decomposition
+
+The `src/decomposition` package builds few-shot prompts from sampled **train**
+records at runtime, validates structured 2–4 hop JSON output, and reports
+position-aware ROUGE-1/ROUGE-L/token F1 plus complexity. Its extrinsic evaluator
+compares supplied answers and gold support paragraphs without retrieval.
+`src/llm` provides a generic client protocol, secure environment-key rotation,
+and a Groq client; it never prints or commits secrets.
+
+The deterministic offline runner writes ignored reports. Without `--responses`,
+it records prompts only:
+
+```powershell
+python scripts/run_decomposition.py --max-examples 25 --seed 13 `
+  --report reports/decomposition.json
+```
+
+To score saved model responses, pass an existing JSONL fixture. Each non-empty
+line must contain either a JSON string or an object with a `response` field:
+
+```powershell
+python scripts/run_decomposition.py --max-examples 25 --seed 13 `
+  --responses path\to\responses.jsonl --report reports/decomposition.json
+```
+
+To generate responses with Groq instead, set the API key(s) in the current
+PowerShell session and add `--live`:
+
+```powershell
+$env:GROQ_API_KEY = "your-groq-key"
+# Optional second key for rotation:
+$env:GROQ_API_KEY_2 = "your-second-groq-key"
+python scripts/run_decomposition.py --live --model qwen/qwen3.8-27b `
+  --max-examples 25 --seed 13 `
+  --report reports/decomposition.json
+```
+
+The generated responses and metrics are stored in the JSON report. Keys are
+read only from environment variables; do not paste them into source files or
+commit them.
+
+Detailed colleague-facing instructions are in
+[the LLM integration guide](src/llm/README.md) and
+[the decomposition guide](src/decomposition/README.md). The verified live-run
+summary is in [reports/decomposition_results.md](reports/decomposition_results.md).
+
+If the keys are already in a local `.env` file, load them into the current
+PowerShell process without printing them:
+
+```powershell
+Get-Content .env | ForEach-Object {
+  if ($_ -match '^\s*(GROQ_API_KEY(?:_2)?)\s*=\s*(.*)\s*$') {
+    [Environment]::SetEnvironmentVariable(
+      $matches[1],
+      $matches[2].Trim().Trim('"').Trim("'"),
+      "Process"
+    )
+  }
+}
+python scripts/run_decomposition.py --live --model qwen/qwen3.8-27b `
+  --max-examples 25 --seed 13 `
+  --report reports/decomposition.json
+```
+
+### Tests
+
+Run the decomposition and key-rotation tests with verbose output:
+
+```powershell
+python -m pytest tests/test_decomposition.py tests/test_key_manager.py -v
+```
+
+Run the complete test suite:
+
+```powershell
+python -m pytest -v
+```
+
+The Week 2 Task 1 implementation was validated locally with **117 passing
+tests**. Tests use stubbed clients and fixtures; they do not make live Groq
+requests.
 
 ## Retrieve-then-answer baseline (Task 3)
 
