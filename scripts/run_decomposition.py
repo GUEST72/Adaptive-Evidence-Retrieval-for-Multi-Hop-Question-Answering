@@ -1,15 +1,11 @@
-"""Run deterministic decomposition prompting and write a JSON report.
-
-By default this is offline and records prompts only. Pass ``--responses`` with
-a JSONL file of model responses to evaluate parser/metrics output. Live API
-calls are intentionally not part of this script.
-"""
+"""Run decomposition prompting and write a JSON report."""
 from __future__ import annotations
 
 import argparse
 import json
 import random
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -24,6 +20,7 @@ from src.decomposition.prompts import build_decomposition_prompt, build_training
 from src.decomposition.generator import DecompositionGenerator
 from src.llm.groq import GroqClient
 from src.llm.client import ProviderError
+from src.llm.key_manager import NoUsableKeyError
 
 
 def main() -> int:
@@ -40,9 +37,27 @@ def main() -> int:
     parser.add_argument("--training-examples", type=int, default=3, choices=range(3, 6))
     parser.add_argument("--live", action="store_true", help="Explicitly enable Groq calls.")
     parser.add_argument("--model", default="qwen/qwen3.8-27b")
+    parser.add_argument("--delay-seconds", type=float, default=0.0,
+                        help="Pause between live requests to reduce rate limiting.")
+    parser.add_argument("--rate-limit-retries", type=int, default=2,
+                        help="Retries per record after all keys are rate limited.")
+    parser.add_argument("--rate-limit-wait", type=float, default=15.0,
+                        help="Seconds to wait before retrying a rate-limited record.")
+    parser.add_argument("--parse-retries", type=int, default=1,
+                        help="Retries per record after malformed model JSON.")
+    parser.add_argument("--parse-retry-wait", type=float, default=1.0,
+                        help="Seconds to wait before retrying malformed model JSON.")
     args = parser.parse_args()
     if args.max_examples < 0:
         parser.error("--max-examples must be non-negative")
+    if (
+        args.delay_seconds < 0
+        or args.rate_limit_retries < 0
+        or args.rate_limit_wait < 0
+        or args.parse_retries < 0
+        or args.parse_retry_wait < 0
+    ):
+        parser.error("delay and retry settings must be non-negative")
     if args.responses and not args.responses.is_file():
         parser.error(
             f"response fixture not found: {args.responses}. "
@@ -84,14 +99,38 @@ def main() -> int:
                 row["parse_error"] = str(exc)
                 failure_count += 1
         elif generator is not None:
-            try:
-                parsed = generator.generate(record.question, examples)
-                row["parsed"] = {"steps": [step.__dict__ for step in parsed.steps]}
-                row["metrics"] = intrinsic_metrics(parsed, [s.question for s in record.question_decomposition])
-            except (ProviderError, ParseError, RuntimeError, ValueError) as exc:
-                row["generation_error"] = type(exc).__name__
-                row["generation_error_message"] = str(exc)
-                failure_count += 1
+            for attempt in range(max(args.rate_limit_retries, args.parse_retries) + 1):
+                try:
+                    parsed = generator.generate(record.question, examples)
+                    row["parsed"] = {"steps": [step.__dict__ for step in parsed.steps]}
+                    row["metrics"] = intrinsic_metrics(
+                        parsed, [s.question for s in record.question_decomposition]
+                    )
+                    break
+                except NoUsableKeyError as exc:
+                    if attempt >= args.rate_limit_retries:
+                        row["generation_error"] = type(exc).__name__
+                        row["generation_error_message"] = str(exc)
+                        failure_count += 1
+                    else:
+                        time.sleep(args.rate_limit_wait)
+                        client.key_manager.reset()
+                except ParseError as exc:
+                    if attempt < args.parse_retries:
+                        time.sleep(args.parse_retry_wait)
+                        continue
+                    row["generation_error"] = type(exc).__name__
+                    row["generation_error_message"] = str(exc)
+                    failure_count += 1
+                    break
+                except (ProviderError, RuntimeError, ValueError) as exc:
+                    row["generation_error"] = type(exc).__name__
+                    row["generation_error_message"] = str(exc)
+                    failure_count += 1
+                    break
+                finally:
+                    if args.delay_seconds and attempt == 0:
+                        time.sleep(args.delay_seconds)
         if "metrics" in row:
             metric_rows.append((parsed, [s.question for s in record.question_decomposition], record.hop_count))
         rows.append(row)

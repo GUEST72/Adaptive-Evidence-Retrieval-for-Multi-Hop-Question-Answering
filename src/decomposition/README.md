@@ -60,12 +60,19 @@ python scripts/run_decomposition.py `
   --model qwen/qwen3.8-27b `
   --max-examples 5 `
   --seed 13 `
+  --delay-seconds 6 `
+  --rate-limit-retries 3 `
+  --rate-limit-wait 20 `
+  --parse-retries 1 `
   --report reports/decomposition.json
 ```
 
 The JSON report records each prompt, parsed decomposition, intrinsic metrics,
 and safe error details. It never records API keys. A successful run should have
 `failure_count: 0`.
+
+For larger batches, keep the pacing and bounded retry options enabled. They
+reduce provider throttling without retrying indefinitely.
 
 ## Metrics and limitations
 

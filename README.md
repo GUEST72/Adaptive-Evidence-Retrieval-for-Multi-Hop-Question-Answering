@@ -206,8 +206,9 @@ commit them.
 
 Detailed colleague-facing instructions are in
 [the LLM integration guide](src/llm/README.md) and
-[the decomposition guide](src/decomposition/README.md). The verified live-run
-summary is in [reports/decomposition_results.md](reports/decomposition_results.md).
+[the decomposition guide](src/decomposition/README.md). The final 50-record
+run summary and integration scope are in
+[reports/task_review.md](reports/task_review.md).
 
 If the keys are already in a local `.env` file, load them into the current
 PowerShell process without printing them:

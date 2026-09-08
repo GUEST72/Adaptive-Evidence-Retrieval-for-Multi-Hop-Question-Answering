@@ -70,6 +70,10 @@ python scripts/run_decomposition.py `
   --split dev `
   --max-examples 5 `
   --seed 13 `
+  --delay-seconds 6 `
+  --rate-limit-retries 3 `
+  --rate-limit-wait 20 `
+  --parse-retries 1 `
   --report reports/decomposition.json
 ```
 
@@ -82,8 +86,10 @@ successful run has `live_generation: true` and `failure_count: 0`.
   process; setting a value in `.env` alone is not enough.
 - **Model does not exist or is unavailable**: list account models and pass a
   currently available ID with `--model`.
-- **All keys are rate limited**: wait for quota recovery or provide another
-  configured key. The client intentionally does not retry forever.
+- **All keys are rate limited**: use `--delay-seconds`, bounded
+  `--rate-limit-retries`, and `--rate-limit-wait`; wait for quota recovery or
+  provide another configured key. The runner intentionally does not retry
+  forever.
 - **JSON parsing failure**: inspect `generation_error_message`; the parser
   accepts plain JSON and common Markdown code-fence/preamble wrappers, but the
   model must still return 2-4 structured steps.
