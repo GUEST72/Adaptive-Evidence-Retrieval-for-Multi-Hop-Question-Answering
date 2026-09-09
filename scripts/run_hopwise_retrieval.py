@@ -24,8 +24,9 @@ import yaml
 
 from src.data.musique_loader import load_split
 from baseline.retrievers import get_retriever
+from src.week2.evidence import trace_to_json
 from src.week2.hopwise.evaluator import ComparisonReport, evaluate_comparison, report_to_json
-from src.week2.hopwise.retriever import substitution_stats
+from src.week2.hopwise.retriever import hopwise_retrieve, substitution_stats
 
 
 def print_report(name: str, report: ComparisonReport) -> None:
@@ -59,6 +60,14 @@ def main() -> int:
         choices=("full", "seeded", "both"),
         default="both",
         help="Which evaluation sample(s) to score.",
+    )
+    parser.add_argument(
+        "--dump-traces",
+        action="store_true",
+        help=(
+            "Also write per-question evidence traces for the seeded sample, for "
+            "Task 3 and Week 3 integration to consume."
+        ),
     )
     args = parser.parse_args()
 
@@ -96,6 +105,31 @@ def main() -> int:
             print_report(name, report)
             per_k[str(k_hop)] = report_to_json(report)
         output["samples"][name] = {"n": len(sample), "k_hop": per_k}
+
+    if args.dump_traces:
+        # Seeded sample only: the full split would be a large file, and Task 3
+        # needs a representative set of real traces rather than all of them.
+        for k_hop in config["k_hop"]:
+            path = Path(config["output"]).with_name(f"hopwise_traces_k{k_hop}.jsonl")
+            with path.open("w", encoding="utf-8") as handle:
+                for record in seeded:
+                    trace = hopwise_retrieve(record, k_hop=k_hop, retrieve=retrieve)
+                    handle.write(
+                        json.dumps(
+                            {
+                                "question_id": record.id,
+                                "question": record.question,
+                                "hop_count": record.hop_count,
+                                "k_hop": k_hop,
+                                "gold_supporting": sorted(
+                                    p.idx for p in record.paragraphs if p.is_supporting
+                                ),
+                                "trace": trace_to_json(trace),
+                            }
+                        )
+                        + "\n"
+                    )
+            print(f"wrote {path}")
 
     destination = Path(config["output"])
     destination.parent.mkdir(parents=True, exist_ok=True)

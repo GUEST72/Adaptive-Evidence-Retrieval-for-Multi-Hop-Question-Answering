@@ -135,8 +135,16 @@ No API key and no LLM calls. About 90 seconds for both samples and all three
 **Inputs:** MuSiQue-Ans dev split (see `data/musique_ans/README.md`) and
 `configs/hopwise.yaml` (split, retriever, `k_hop` sweep, seed, sample size).
 
-**Outputs:** `reports/week2/hopwise_results.json` — per sample, per `k_hop`,
-per hop count, both conditions plus deltas, and the substitution counts above.
+**Outputs:** `reports/week2/hopwise_results.json` — per sample, per `k_hop`, per
+hop count, both conditions plus deltas, and the substitution counts above. This
+file is committed; it holds metrics only, no paragraph text.
+
+Add `--dump-traces` to also write `reports/week2/hopwise_traces_k{k}.jsonl`, one
+JSON object per question with its gold supporting indices and full evidence
+trace. Those files **are gitignored**: they embed MuSiQue paragraph text, which
+this repository deliberately does not version (see
+`data/musique_ans/README.md`). Regenerate them locally in a few seconds when
+Task 3 or Week 3 integration needs them.
 
 ## Evidence trace
 

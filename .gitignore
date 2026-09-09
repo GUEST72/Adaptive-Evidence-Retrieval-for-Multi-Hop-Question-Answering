@@ -22,3 +22,8 @@ data/musique_ans/*.jsonl
 
 # Local LLM response cache (see baseline/llm_cache.py)
 .cache/
+
+# Evidence traces embed MuSiQue paragraph text, which this repository
+# deliberately does not version (see data/musique_ans/README.md). Regenerate
+# them with: python scripts/run_hopwise_retrieval.py --dump-traces
+reports/**/*_traces_k*.jsonl
