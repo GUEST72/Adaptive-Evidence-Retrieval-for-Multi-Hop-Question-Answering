@@ -222,3 +222,34 @@ which is a useful cross-check rather than a redundancy.
 
 Full detail — prompt, normalisation, provider budgets, response caching, run
 provenance, and the GPU notebook: [baseline/README.md](baseline/README.md).
+
+## Hop-wise retrieval (Week 2, Task 2)
+
+Retrieves evidence once per reasoning hop using the gold decomposition, with each
+hop's query conditioned on the previous hop's answer, instead of once per
+question. Compared against the Week 1 one-shot condition at an identical
+per-question retrieval budget (`hop_count x k_hop` slots for both).
+
+```bash
+python scripts/run_hopwise_retrieval.py --config configs/hopwise.yaml
+```
+
+No LLM calls and no API key; about 90 seconds over the full dev split.
+
+Full dev (2,417 questions), BM25 — `AG` is the fraction of questions where
+*every* gold supporting paragraph is retrieved, which bounds any downstream
+reader:
+
+| k_hop | one-shot recall | hop-wise recall | one-shot AG | hop-wise AG |
+| ---: | ---: | ---: | ---: | ---: |
+| 1 | 40.0% | **68.7%** | 5.3% | **35.4%** |
+| 2 | 54.6% | **86.9%** | 17.7% | **69.8%** |
+| 3 | 64.4% | **92.2%** | 30.0% | **81.4%** |
+
+Hop-wise wins while retrieving *fewer unique paragraphs* than one-shot, since
+hops overlap — so the comparison is conservative. These are oracle numbers (gold
+sub-questions and gold previous-hop answers), and therefore an upper bound on
+what generated decomposition can achieve.
+
+Detail, substitution behaviour, per-hop breakdown and limitations:
+[src/week2/hopwise/README.md](src/week2/hopwise/README.md).
