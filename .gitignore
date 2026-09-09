@@ -22,3 +22,6 @@ data/musique_ans/*.jsonl
 
 # Local LLM response cache (see baseline/llm_cache.py)
 .cache/
+
+# Generated decomposition reports (keep the convention, not local outputs)
+reports/*.json
