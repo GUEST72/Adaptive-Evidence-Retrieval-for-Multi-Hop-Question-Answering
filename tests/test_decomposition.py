@@ -79,6 +79,7 @@ def test_examples_are_built_from_records(make_record):
     records = [make_record(f"id-{i}", (0, 1)) for i in range(4)]
     examples = build_training_examples(records, count=3, seed=4)
     assert len(examples) == 3
+    assert examples[0]["steps"][1]["depends_on"] == ["step_1"]
     prompt = build_decomposition_prompt("new question", examples)
     assert "new question" in prompt
     assert "Example question:" in prompt
@@ -116,3 +117,17 @@ def test_extrinsic_generated_steps_uses_gold_evidence_and_substitution(make_reco
     assert record.paragraphs[0].paragraph_text in client.prompts[0]
     assert "[ANSWER_1]" not in client.prompts[1]
     assert "a0" in client.prompts[1]
+
+
+def test_aggregate_extrinsic_breaks_down_by_position_and_complexity():
+    from src.decomposition.metrics import aggregate_extrinsic
+
+    result = aggregate_extrinsic([
+        ([
+            {"hop": 1, "answer_exact": 1.0, "answer_token_f1": 1.0},
+            {"hop": 2, "answer_exact": 0.0, "answer_token_f1": 0.5},
+        ], 2),
+    ])
+    assert result["overall"]["answer_exact"] == pytest.approx(0.5)
+    assert result["by_position"]["2"]["answer_token_f1"] == pytest.approx(0.5)
+    assert result["by_gold_hops"]["2"]["count"] == 2

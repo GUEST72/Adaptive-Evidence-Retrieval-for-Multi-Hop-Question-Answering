@@ -101,6 +101,52 @@ def aggregate_intrinsic(
             "complexity_by_gold_hops": breakdown, "count": len(rows)}
 
 
+def aggregate_extrinsic(
+    rows: Sequence[tuple[Sequence[Mapping[str, float]], int]]
+) -> dict[str, object]:
+    """Aggregate per-step answerability scores by position and gold hops."""
+    def average(values: list[float]) -> float:
+        return sum(values) / len(values) if values else 0.0
+
+    all_scores = [score for scores, _ in rows for score in scores]
+    metrics = ("answer_exact", "answer_token_f1")
+    by_position: dict[str, dict[str, float]] = {}
+    for position in range(1, 5):
+        selected = [
+            score for scores, _ in rows
+            for score in scores
+            if int(score.get("hop", 0)) == position
+        ]
+        by_position[str(position)] = {
+            metric: average([float(score.get(metric, 0.0)) for score in selected])
+            for metric in metrics
+        }
+        by_position[str(position)]["count"] = len(selected)
+
+    by_complexity: dict[str, dict[str, float]] = {}
+    for hop_count in (2, 3, 4):
+        selected = [
+            score for scores, gold_hops in rows
+            if gold_hops == hop_count
+            for score in scores
+        ]
+        by_complexity[str(hop_count)] = {
+            metric: average([float(score.get(metric, 0.0)) for score in selected])
+            for metric in metrics
+        }
+        by_complexity[str(hop_count)]["count"] = len(selected)
+
+    return {
+        "overall": {
+            metric: average([float(score.get(metric, 0.0)) for score in all_scores])
+            for metric in metrics
+        },
+        "by_position": by_position,
+        "by_gold_hops": by_complexity,
+        "count": len(all_scores),
+    }
+
+
 def extrinsic_metrics(
     predicted_answer: str,
     gold_answer: str,

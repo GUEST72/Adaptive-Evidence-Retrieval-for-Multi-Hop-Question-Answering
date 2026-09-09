@@ -21,7 +21,11 @@ def build_training_examples(
         {
             "question": record.question,
             "steps": [
-                {"id": f"step_{i + 1}", "question": step.question, "depends_on": []}
+                {
+                    "id": f"step_{i + 1}",
+                    "question": step.question,
+                    "depends_on": [f"step_{i}"] if i else [],
+                }
                 for i, step in enumerate(record.question_decomposition)
             ],
         }

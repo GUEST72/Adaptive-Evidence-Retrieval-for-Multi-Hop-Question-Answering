@@ -95,6 +95,24 @@ The one failure was record
 strict validator correctly rejected it. No API key or transport error remained
 in the final run.
 
+The runner also supports `--extrinsic`, which evaluates each valid generated
+step with its gold supporting paragraph and gold previous-hop answers. This is
+separate from the 50-record intrinsic run above because it makes additional
+LLM calls and has separate provider cost/quota implications.
+
+The live extrinsic path was smoke-tested on 2 development records using the
+same model. It completed 5 per-hop answer checks with zero generation
+failures. The smoke metrics were:
+
+| Metric | Result |
+|---|---:|
+| Per-hop checks | 5 |
+| Exact answer accuracy | 0.000 |
+| Answer token F1 | 0.087 |
+
+These are smoke-test results, not a representative benchmark. A larger
+extrinsic run should be performed when provider quota permits.
+
 The full automated suite passed with **119 tests**:
 
 ```text

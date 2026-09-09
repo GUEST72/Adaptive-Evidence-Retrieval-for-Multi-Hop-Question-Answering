@@ -74,12 +74,31 @@ and safe error details. It never records API keys. A successful run should have
 For larger batches, keep the pacing and bounded retry options enabled. They
 reduce provider throttling without retrying indefinitely.
 
+To run the required extrinsic answerability evaluation, add `--extrinsic`.
+This makes one additional LLM answer call per generated hop using that hop's
+gold supporting paragraph and gold previous-hop answers. The report then
+contains overall, hop-position, and 2/3/4-hop answerability metrics:
+
+```powershell
+python scripts/run_decomposition.py `
+  --live `
+  --extrinsic `
+  --model qwen/qwen3.8-27b `
+  --max-examples 50 `
+  --seed 13 `
+  --delay-seconds 6 `
+  --rate-limit-retries 3 `
+  --rate-limit-wait 20 `
+  --parse-retries 1 `
+  --report reports/decomposition-50-extrinsic.json
+```
+
 ## Metrics and limitations
 
 Intrinsic metrics are position-aware ROUGE-1, ROUGE-L, and token F1. The
 report also includes hop-count accuracy, dependency complexity, and 2/3/4-hop
-breakdowns. The extrinsic evaluator uses gold previous-hop answers and gold
-support paragraphs; it does not perform retrieval.
+breakdowns. Extrinsic answerability uses gold previous-hop answers and the
+corresponding gold support paragraph; it does not perform retrieval.
 
 Model output quality is not guaranteed by syntactic validity. Review parsed
 steps and metrics before using decompositions in later experiments. Live runs
