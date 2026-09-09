@@ -5,7 +5,10 @@
 # which were all computed on seed 13 / n=300.
 split: dev
 retriever: bm25          # resolved through baseline/retrievers.py
-k_hop: [1, 2, 3]         # slots per hop; one-shot gets hop_count * k_hop
+# Slots per hop; one-shot gets hop_count * k_hop. The sweep stops at 4 because
+# k_hop=5 gives a 4-hop question a budget of 20 — the entire closed context —
+# which makes retrieval trivial rather than informative (spec section 17).
+k_hop: [1, 2, 3, 4]
 sample_size: 300         # for the comparability sample only
 seed: 13                 # matches the Week 1 baseline sample
 output: reports/week2/hopwise_results.json

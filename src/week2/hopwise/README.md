@@ -77,9 +77,12 @@ Two things worth noting when reading the tables:
 - **Hop-wise is handicapped, not favoured.** Hops overlap, so deduplication
   leaves it with *fewer unique paragraphs* than its slot budget allows (4.6 vs
   5.3 at `k_hop=2`). It wins despite seeing less.
-- **No ceiling.** One-shot recall runs 40–64% at these budgets, far from
+- **No ceiling.** One-shot recall runs 40–72% across the sweep, short of
   saturation, so the gains are not an artefact of large `k` trivially returning
-  the whole 20-paragraph context (spec §17).
+  the whole 20-paragraph context (spec §17). The sweep stops at `k_hop=4`
+  deliberately: `k_hop=5` would give a 4-hop question 20 slots — the entire
+  closed context — making its retrieval trivially perfect and the comparison
+  meaningless.
 
 ## Results
 
@@ -90,6 +93,12 @@ Full dev split, 2,417 questions, BM25. `R` = recall, `AG` = all gold retrieved.
 | 1 | 40.0% | **68.7%** | +28.7 | 5.3% | **35.4%** | +30.0 |
 | 2 | 54.6% | **86.9%** | +32.3 | 17.7% | **69.8%** | +52.1 |
 | 3 | 64.4% | **92.2%** | +27.8 | 30.0% | **81.4%** | +51.4 |
+| 4 | 71.9% | **94.6%** | +22.7 | 41.3% | **86.9%** | +45.6 |
+
+The advantage peaks at tight budgets and narrows as the budget grows
+(ΔR +28.7 → +32.3 → +27.8 → +22.7). That is the expected shape — one-shot
+eventually brute-forces the small closed context — and it means hop-wise
+retrieval buys the most exactly where budget and latency matter.
 
 MRR also rises (0.696 → 0.812 at `k_hop=2`), so gold paragraphs rank higher, not
 merely appear more often.
@@ -109,18 +118,28 @@ paragraph, that is the number that bounds any downstream reader.
 | 3 | 2 | 60.5% | 92.0% | +31.4 | 32.6% | 85.1% | +52.5 |
 | 3 | 3 | 69.0% | 91.2% | +22.2 | 29.5% | 75.4% | +45.9 |
 | 3 | 4 | 67.9% | 94.9% | +27.0 | 23.0% | 81.5% | +58.5 |
+| 4 | 2 | 66.8% | 94.3% | +27.5 | 41.3% | 89.4% | +48.1 |
+| 4 | 3 | 75.8% | 93.8% | +18.0 | 40.7% | 82.0% | +41.3 |
+| 4 | 4 | 80.6% | 97.0% | +16.4 | 42.7% | 88.6% | +45.9 |
 
 **On the depth hypothesis.** The project expected hop-wise retrieval to help
-most as reasoning depth increases. The data does not support a clean version of
-that claim: gains are large at every depth but show **no consistent monotonic
-trend**, and the ordering flips between budgets (4-hop has the smallest all-gold
-gain at `k_hop=1` and the largest at `k_hop=3`). What does hold is that deeper
-questions remain harder in absolute terms, and that one-shot's all-gold rate
-collapses with depth (22.4% → 14.6% → 8.6% at `k_hop=2`) while hop-wise degrades
-far more gently (75.5% → 65.4% → 60.2%).
+most as reasoning depth increases. **The data does not support that claim.**
+Recall gains show no consistent trend across depth, and where a trend does
+appear at the larger budgets it runs the *wrong* way — at `k_hop=4` the gain
+falls monotonically with depth (+27.5, +18.0, +16.4). The all-gold ordering
+flips between budgets (4-hop shows the smallest gain at `k_hop=1` and the
+largest at `k_hop=3`), which is consistent with noise rather than a depth
+effect.
+
+What does hold, and is arguably the more useful claim: one-shot's ability to
+assemble a *complete* supporting set collapses as depth grows (22.4% → 14.6% →
+8.6% at `k_hop=2`) while hop-wise degrades far more gently (75.5% → 65.4% →
+60.2%). Hop-wise retrieval does not help *more* with depth; it stops the
+failure that depth otherwise causes.
 
 The seeded 300-question sample used by the Week 1 baseline is evaluated
-alongside and agrees closely — e.g. 87.3% vs 86.9% hop-wise recall at `k_hop=2`.
+alongside and agrees closely — e.g. 87.3% vs 86.9% hop-wise recall at `k_hop=2`,
+and 94.1% vs 94.6% at `k_hop=4`.
 
 ## How to run
 
@@ -128,9 +147,9 @@ alongside and agrees closely — e.g. 87.3% vs 86.9% hop-wise recall at `k_hop=2
 python scripts/run_hopwise_retrieval.py --config configs/hopwise.yaml
 ```
 
-No API key and no LLM calls. About 90 seconds for both samples and all three
+No API key and no LLM calls. About 100 seconds for both samples and all four
 `k_hop` values. `--sample seeded` scores only the Week 1 comparability sample
-(about 8 seconds).
+(about 10 seconds).
 
 **Inputs:** MuSiQue-Ans dev split (see `data/musique_ans/README.md`) and
 `configs/hopwise.yaml` (split, retriever, `k_hop` sweep, seed, sample size).

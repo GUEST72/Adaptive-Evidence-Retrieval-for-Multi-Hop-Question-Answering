@@ -245,6 +245,7 @@ reader:
 | 1 | 40.0% | **68.7%** | 5.3% | **35.4%** |
 | 2 | 54.6% | **86.9%** | 17.7% | **69.8%** |
 | 3 | 64.4% | **92.2%** | 30.0% | **81.4%** |
+| 4 | 71.9% | **94.6%** | 41.3% | **86.9%** |
 
 Hop-wise wins while retrieving *fewer unique paragraphs* than one-shot, since
 hops overlap — so the comparison is conservative. These are oracle numbers (gold
