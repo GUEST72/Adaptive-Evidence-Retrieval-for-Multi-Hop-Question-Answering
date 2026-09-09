@@ -11,15 +11,36 @@ import pytest
 from src.data.musique_loader import DecompositionStep, MuSiQueRecord, Paragraph
 
 
-def build_record(question_id: str, supporting: tuple[int, ...]) -> MuSiQueRecord:
-    """A synthetic record whose hop count follows from its supporting set."""
+def build_record(
+    question_id: str,
+    supporting: tuple[int, ...],
+    sub_questions: tuple[str, ...] | None = None,
+    sub_answers: tuple[str, ...] | None = None,
+) -> MuSiQueRecord:
+    """A synthetic record whose hop count follows from its supporting set.
+
+    `sub_questions` / `sub_answers` override the gold decomposition text, which
+    hop-wise retrieval tests need in order to exercise MuSiQue's `#N`
+    previous-answer references.
+    """
     paragraphs = tuple(
         Paragraph(idx=i, title=f"T{i}", paragraph_text=f"text {i}", is_supporting=i in supporting)
         for i in range(20)
     )
+    ordered = sorted(supporting)
+    if sub_questions is not None and len(sub_questions) != len(ordered):
+        raise ValueError("sub_questions must have one entry per supporting paragraph.")
+    if sub_answers is not None and len(sub_answers) != len(ordered):
+        raise ValueError("sub_answers must have one entry per supporting paragraph.")
+
     decomposition = tuple(
-        DecompositionStep(id=n + 1, question=f"q{n}", answer=f"a{n}", paragraph_support_idx=idx)
-        for n, idx in enumerate(sorted(supporting))
+        DecompositionStep(
+            id=n + 1,
+            question=sub_questions[n] if sub_questions else f"q{n}",
+            answer=sub_answers[n] if sub_answers else f"a{n}",
+            paragraph_support_idx=idx,
+        )
+        for n, idx in enumerate(ordered)
     )
     return MuSiQueRecord(
         id=question_id,
