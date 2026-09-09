@@ -113,8 +113,8 @@ failures. The smoke metrics were:
 These are smoke-test results, not a representative benchmark. A larger
 extrinsic run should be performed when provider quota permits.
 
-The full automated suite passed with **119 tests**:
+The full automated suite passed with **120 tests**:
 
 ```text
-119 passed
+120 passed
 ```
