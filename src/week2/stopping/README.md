@@ -1,5 +1,10 @@
 # Week 2 — Task 3: Adaptive Stopping and Supporting-Evidence F1
 
+**Branch:** `feature/adaptive-stopping`  
+**Merge target:** `main`
+
+Work on this branch only. Do not implement Task 3 on `main`.
+
 ## What it does
 
 After each reasoning hop, decide whether the evidence gathered so far is

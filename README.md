@@ -341,6 +341,8 @@ Detail, substitution behaviour, per-hop breakdown and limitations:
 
 ## Adaptive stopping (Week 2, Task 3)
 
+**Branch:** `feature/adaptive-stopping` (merge target: `main`).
+
 A **per-hop evidence sufficiency check**, not Adaptive-RAG's upfront complexity
 classifier. After each hop the rule sees the original question and the evidence
 gathered so far and returns structured JSON `{ "stop": bool, "reason": ... }`.
