@@ -1,0 +1,131 @@
+{
+  "generated_at": "2026-09-15T16:29:35.333880+00:00",
+  "framing": "The Week 2 stopping mechanism is a per-hop evidence sufficiency check. It is inspired by iterative reasoning-and-retrieval termination behavior, particularly IRCoT, but it is not the same as Adaptive-RAG's upfront complexity classifier.",
+  "baseline_supporting_evidence": [
+    {
+      "n": 300,
+      "missing_records": 0,
+      "overall": {
+        "precision": 0.34888888888888886,
+        "recall": 0.4116666666666667,
+        "f1": 0.37142857142857144,
+        "em": 0.006666666666666667
+      },
+      "by_hop": {
+        "2": {
+          "precision": 0.29723991507430997,
+          "recall": 0.445859872611465,
+          "f1": 0.35668789808917195,
+          "em": 0.0
+        },
+        "3": {
+          "precision": 0.40404040404040403,
+          "recall": 0.40404040404040403,
+          "f1": 0.40404040404040403,
+          "em": 0.020202020202020204
+        },
+        "4": {
+          "precision": 0.4090909090909091,
+          "recall": 0.3068181818181818,
+          "f1": 0.3506493506493507,
+          "em": 0.0
+        }
+      },
+      "path": "C:/Users/Omar/Desktop/hops/Adaptive-Evidence-Retrieval-for-Multi-Hop-Question-Answering/baseline/results/predictions_bm25_k3.jsonl"
+    },
+    {
+      "n": 300,
+      "missing_records": 0,
+      "overall": {
+        "precision": 0.27266666666666667,
+        "recall": 0.5341666666666667,
+        "f1": 0.3552380952380953,
+        "em": 0.0
+      },
+      "by_hop": {
+        "2": {
+          "precision": 0.23439490445859876,
+          "recall": 0.5859872611464968,
+          "f1": 0.3348498635122839,
+          "em": 0.0
+        },
+        "3": {
+          "precision": 0.2909090909090909,
+          "recall": 0.48484848484848486,
+          "f1": 0.36363636363636365,
+          "em": 0.0
+        },
+        "4": {
+          "precision": 0.36818181818181817,
+          "recall": 0.4602272727272727,
+          "f1": 0.4090909090909091,
+          "em": 0.0
+        }
+      },
+      "path": "C:/Users/Omar/Desktop/hops/Adaptive-Evidence-Retrieval-for-Multi-Hop-Question-Answering/baseline/results/predictions_bm25_k5.jsonl"
+    },
+    {
+      "n": 300,
+      "missing_records": 0,
+      "overall": {
+        "precision": 0.17866666666666667,
+        "recall": 0.6908333333333333,
+        "f1": 0.2805067155067155,
+        "em": 0.0
+      },
+      "by_hop": {
+        "2": {
+          "precision": 0.14458598726114652,
+          "recall": 0.7229299363057324,
+          "f1": 0.24097664543524416,
+          "em": 0.0
+        },
+        "3": {
+          "precision": 0.2,
+          "recall": 0.6666666666666666,
+          "f1": 0.30769230769230765,
+          "em": 0.0
+        },
+        "4": {
+          "precision": 0.25227272727272726,
+          "recall": 0.6306818181818182,
+          "f1": 0.3603896103896104,
+          "em": 0.0
+        }
+      },
+      "path": "C:/Users/Omar/Desktop/hops/Adaptive-Evidence-Retrieval-for-Multi-Hop-Question-Answering/baseline/results/predictions_bm25_k10.jsonl"
+    }
+  ],
+  "stopping": {
+    "method": "lexical_coverage:1.0",
+    "n": 300,
+    "seed": 13,
+    "split": "dev",
+    "overall": {
+      "count": 300,
+      "early": 0.0,
+      "correct": 0.0033333333333333335,
+      "late": 0.9966666666666667
+    },
+    "by_hop": {
+      "2": {
+        "count": 157,
+        "early": 0.0,
+        "correct": 0.006369426751592357,
+        "late": 0.9936305732484076
+      },
+      "3": {
+        "count": 99,
+        "early": 0.0,
+        "correct": 0.0,
+        "late": 1.0
+      },
+      "4": {
+        "count": 44,
+        "early": 0.0,
+        "correct": 0.0,
+        "late": 1.0
+      }
+    }
+  }
+}

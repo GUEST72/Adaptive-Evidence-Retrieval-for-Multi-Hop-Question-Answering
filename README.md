@@ -10,9 +10,10 @@ baseline.
 
 The current implementation covers MuSiQue-Ans loading/validation/EDA (Task 1),
 a closed BM25 evidence retriever (Task 2), an end-to-end retrieve-then-answer
-QA baseline with EM/F1 scoring (Task 3), and the Week 2 question-decomposition
-infrastructure. Iterative retrieval and adaptive hop selection are not
-implemented yet.
+QA baseline with EM/F1 scoring (Week 1 Task 3), Week 2 question decomposition,
+oracle hop-wise retrieval, and per-hop adaptive stopping with Supporting-Evidence
+F1. Full Week 3 integration of the three Week 2 components is not implemented
+yet.
 
 ### Environment
 
@@ -337,3 +338,49 @@ what generated decomposition can achieve.
 
 Detail, substitution behaviour, per-hop breakdown and limitations:
 [src/week2/hopwise/README.md](src/week2/hopwise/README.md).
+
+## Adaptive stopping (Week 2, Task 3)
+
+**Branch:** `feature/adaptive-stopping` (merge target: `main`).
+
+A **per-hop evidence sufficiency check**, not Adaptive-RAG's upfront complexity
+classifier. After each hop the rule sees the original question and the evidence
+gathered so far and returns structured JSON `{ "stop": bool, "reason": ... }`.
+Week 2 evaluates it on synthetic gold-prefix traces (gold supporting paragraph 1
+after hop 1, paragraphs 1–2 after hop 2, …) and labels outcomes as early,
+correct, or late, including a 2/3/4-hop breakdown.
+
+The same branch adds the official set-based Supporting-Evidence P/R/F1 evaluator
+and applies it to the Week 1 BM25 baseline prediction files.
+
+```powershell
+python scripts/run_stopping_eval.py
+python -m pytest tests/test_stopping.py -v
+```
+
+The default command needs the dataset and no API key (lexical-coverage heuristic
+for stopping; evidence F1 is deterministic). Live LLM stopping:
+
+```powershell
+$env:GROQ_API_KEY = "your-groq-key"
+python scripts/run_stopping_eval.py --live --model qwen/qwen3.8-27b --max-examples 25
+```
+
+Week 1 BM25 baseline, Supporting-Evidence F1 on the seeded 300-question sample:
+
+| k | Precision | Recall | F1 |
+| ---: | ---: | ---: | ---: |
+| 3 | 0.349 | 0.412 | 0.371 |
+| 5 | 0.273 | 0.534 | 0.355 |
+| 10 | 0.179 | 0.691 | 0.281 |
+
+Higher k recovers more gold paragraphs (recall) but dilutes precision, so F1
+peaks at k=3 in this closed top-k setting.
+
+The lexical stopping heuristic on synthetic gold prefixes is almost always
+**late** (0.997 of 300), as expected: full question-token coverage is a poor
+proxy for multi-hop sufficiency. That number is an offline baseline, not the
+LLM rule.
+
+Detail, framing, and limitations:
+[src/week2/stopping/README.md](src/week2/stopping/README.md).
