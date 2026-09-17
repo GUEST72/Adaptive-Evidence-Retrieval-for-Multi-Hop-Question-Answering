@@ -2,9 +2,13 @@
 from __future__ import annotations
 
 import random
+import re
 from collections.abc import Sequence
 
 from src.data.musique_loader import MuSiQueRecord
+
+
+_GOLD_REFERENCE = re.compile(r"#(\d+)")
 
 
 def build_training_examples(
@@ -17,20 +21,36 @@ def build_training_examples(
     if len(candidates) < count:
         raise ValueError(f"Need at least {count} records to build training examples.")
     selected = random.Random(seed).sample(candidates, count)
-    return [
-        {
-            "question": record.question,
-            "steps": [
-                {
-                    "id": f"step_{i + 1}",
-                    "question": step.question,
-                    "depends_on": [f"step_{i}"] if i else [],
-                }
-                for i, step in enumerate(record.question_decomposition)
-            ],
-        }
-        for record in selected
-    ]
+    return [_example_from_record(record) for record in selected]
+
+
+def _example_from_record(record: MuSiQueRecord) -> dict[str, object]:
+    """Translate MuSiQue's ``#N`` syntax into the generated-plan contract."""
+    steps: list[dict[str, object]] = []
+    for position, step in enumerate(record.question_decomposition, start=1):
+        references: list[int] = []
+
+        def translate(match: re.Match[str]) -> str:
+            reference = int(match.group(1))
+            # MuSiQue also contains literal entity titles such as ``#9 Dream``.
+            # A reference is identifiable from the released data by pointing to
+            # an already completed hop; non-backward ``#N`` text stays literal.
+            if 1 <= reference < position:
+                references.append(reference)
+                return f"[ANSWER_{reference}]"
+            return match.group(0)
+
+        question = _GOLD_REFERENCE.sub(translate, step.question)
+        # Preserve first-reference order while declaring each dependency once.
+        unique_references = list(dict.fromkeys(references))
+        steps.append(
+            {
+                "id": f"step_{position}",
+                "question": question,
+                "depends_on": [f"step_{reference}" for reference in unique_references],
+            }
+        )
+    return {"question": record.question, "steps": steps}
 
 
 def build_decomposition_prompt(

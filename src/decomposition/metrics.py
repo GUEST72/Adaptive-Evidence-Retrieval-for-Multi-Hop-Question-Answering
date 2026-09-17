@@ -52,6 +52,12 @@ def intrinsic_metrics(predicted: Decomposition, gold_questions: Sequence[str]) -
                            "rouge_l": sum(rl) / len(rl) if rl else 0.0,
                            "token_f1": sum(tf1) / len(tf1) if tf1 else 0.0,
                            "matched_steps": len(pairs), "per_step": per_step},
+        "alignment": {
+            "predicted_hops": predicted.hop_count,
+            "gold_hops": len(gold_questions),
+            "matched_steps": len(pairs),
+            "complete": predicted.hop_count == len(gold_questions),
+        },
         "complexity": {
             "predicted_hops": predicted.hop_count,
             "gold_hops": len(gold_questions),
@@ -69,21 +75,29 @@ def aggregate_intrinsic(
     def average(items: list[float]) -> float:
         return sum(items) / len(items) if items else 0.0
     all_metrics = [intrinsic_metrics(pred, gold) for pred, gold, _ in rows]
-    position = {}
-    position_breakdown: dict[str, dict[str, float]] = {}
+    position: dict[str, float | int] = {"count": len(all_metrics)}
+    position_breakdown: dict[str, dict[str, float | int]] = {}
     for metric in ("rouge_1", "rouge_l", "token_f1"):
         position[metric] = average([
             float(item["position_aware"][metric]) for item in all_metrics
         ])
     for hop_index in range(1, 5):
         position_breakdown[str(hop_index)] = {}
+        scores_by_metric: dict[str, list[float]] = {
+            metric: [] for metric in ("rouge_1", "rouge_l", "token_f1")
+        }
+        for item in all_metrics:
+            per_step = item["position_aware"].get("per_step", [])
+            if len(per_step) >= hop_index:
+                for metric in scores_by_metric:
+                    scores_by_metric[metric].append(
+                        float(per_step[hop_index - 1][metric])
+                    )
         for metric in ("rouge_1", "rouge_l", "token_f1"):
-            scores = []
-            for item in all_metrics:
-                per_step = item["position_aware"].get("per_step", [])
-                if len(per_step) >= hop_index:
-                    scores.append(float(per_step[hop_index - 1][metric]))
-            position_breakdown[str(hop_index)][metric] = average(scores)
+            position_breakdown[str(hop_index)][metric] = average(scores_by_metric[metric])
+        position_breakdown[str(hop_index)]["count"] = len(
+            scores_by_metric["rouge_1"]
+        )
     breakdown: dict[str, Mapping[str, float]] = {}
     for hop in (2, 3, 4):
         subset = [item for item, _, gold_hops in zip(all_metrics, [r[1] for r in rows], [r[2] for r in rows]) if gold_hops == hop]
@@ -96,8 +110,22 @@ def aggregate_intrinsic(
     accuracy = average([
         float(pred.hop_count == len(gold)) for pred, gold, _ in rows
     ])
+    total_gold_steps = sum(len(gold) for _, gold, _ in rows)
+    total_matched_steps = sum(
+        int(item["alignment"]["matched_steps"]) for item in all_metrics
+    )
+    complete_count = sum(
+        bool(item["alignment"]["complete"]) for item in all_metrics
+    )
     return {"overall": position, "by_position": position_breakdown,
             "hop_count_accuracy": accuracy,
+            "alignment": {
+                "count": len(all_metrics),
+                "complete_count": complete_count,
+                "incomplete_count": len(all_metrics) - complete_count,
+                "total_gold_steps": total_gold_steps,
+                "total_matched_steps": total_matched_steps,
+            },
             "complexity_by_gold_hops": breakdown, "count": len(rows)}
 
 

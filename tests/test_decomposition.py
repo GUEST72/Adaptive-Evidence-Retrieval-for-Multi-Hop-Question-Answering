@@ -75,14 +75,44 @@ def test_parser_rejects_malformed_or_unusable_output(bad):
         parse_decomposition(bad)
 
 
-def test_examples_are_built_from_records(make_record):
-    records = [make_record(f"id-{i}", (0, 1)) for i in range(4)]
+def test_examples_translate_backward_references_and_preserve_literal_titles(make_record):
+    records = [
+        make_record(
+            f"id-{i}",
+            (0, 1, 2),
+            sub_questions=("#9 Dream >> performer", "#1 and #1", "independent third"),
+        )
+        for i in range(4)
+    ]
     examples = build_training_examples(records, count=3, seed=4)
     assert len(examples) == 3
+    assert examples[0]["steps"][0]["question"] == "#9 Dream >> performer"
+    assert examples[0]["steps"][0]["depends_on"] == []
+    assert examples[0]["steps"][1]["question"] == "[ANSWER_1] and [ANSWER_1]"
     assert examples[0]["steps"][1]["depends_on"] == ["step_1"]
+    assert examples[0]["steps"][2]["depends_on"] == []
     prompt = build_decomposition_prompt("new question", examples)
     assert "new question" in prompt
     assert "Example question:" in prompt
+
+
+def test_intrinsic_metrics_expose_partial_alignment():
+    parsed = parse_decomposition(response())
+    metrics = intrinsic_metrics(parsed, ["one", "two", "three", "four"])
+
+    assert metrics["alignment"] == {
+        "predicted_hops": 2,
+        "gold_hops": 4,
+        "matched_steps": 2,
+        "complete": False,
+    }
+
+    from src.decomposition.metrics import aggregate_intrinsic
+
+    aggregate = aggregate_intrinsic([(parsed, ["one", "two", "three", "four"], 4)])
+    assert aggregate["alignment"]["incomplete_count"] == 1
+    assert aggregate["alignment"]["total_matched_steps"] == 2
+    assert aggregate["by_position"]["3"]["count"] == 0
 
 
 def test_extrinsic_scores_answer_and_support():
