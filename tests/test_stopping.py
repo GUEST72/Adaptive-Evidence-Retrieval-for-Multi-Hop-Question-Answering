@@ -19,7 +19,7 @@ from src.week2.stopping.evaluator import CORRECT, EARLY, LATE, classify_stopping
 from src.week2.stopping.parser import StoppingParseError, parse_stopping_output
 from src.week2.stopping.stopping_rule import LexicalCoverageStoppingRule, LLMStoppingRule
 from src.week2.stopping.synthetic_traces import synthetic_gold_trace
-from tests.conftest import build_record
+from conftest import build_record  # tests/ is not a package; see tests/conftest.py
 
 
 def official_hotpot_support_f1(predicted: list[int], gold: list[int]) -> tuple[float, float, float]:
