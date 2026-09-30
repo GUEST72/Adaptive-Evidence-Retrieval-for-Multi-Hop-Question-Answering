@@ -11,9 +11,9 @@ baseline.
 The current implementation covers MuSiQue-Ans loading/validation/EDA (Task 1),
 a closed BM25 evidence retriever (Task 2), an end-to-end retrieve-then-answer
 QA baseline with EM/F1 scoring (Week 1 Task 3), Week 2 question decomposition,
-oracle hop-wise retrieval, and per-hop adaptive stopping with Supporting-Evidence
-F1. Full Week 3 integration of the three Week 2 components is not implemented
-yet.
+oracle hop-wise retrieval, per-hop adaptive stopping with Supporting-Evidence
+F1, and the Week 3 generated adaptive pipeline (decomposition → hop executor →
+live stopping loop → final reader at the stop point).
 
 ### Environment
 
@@ -384,3 +384,64 @@ LLM rule.
 
 Detail, framing, and limitations:
 [src/week2/stopping/README.md](src/week2/stopping/README.md).
+
+## Week 3: generated adaptive pipeline
+
+Week 2 measured the three pieces in isolation (generated decomposition, oracle
+hop-wise retrieval, synthetic stopping). Those modules stay where they are:
+`src/week2/hopwise/` and `src/week2/stopping/` are not the live path. Week 3
+runs a **generated** plan:
+
+1. Build train-derived few-shot examples once, then generate a decomposition.
+2. For each hop, substitute `[ANSWER_N]` from prior answers (a missing prior
+   answer is an error, not an empty string), retrieve with `k_hop`, and read an
+   intermediate answer from that hop's paragraphs.
+3. After each hop, ask the stopping rule whether the original question is
+   already answerable from accumulated evidence, and break before the next
+   executor call when it is.
+4. Read a final answer from the original question and evidence at the actual
+   stop. Do not call `answer_question()`, which would retrieve again from the
+   raw question.
+
+Execution never reads `record.question_decomposition`, gold hop answers, or
+`is_supporting`. A parse failure is a scored empty prediction
+(`status: parse_error`); the gold plan is not substituted and the record stays
+in EM/F1. Live stopping is labelled against actual evidence prefixes
+(`stopped_at` / `stopped_early` / `stopped_late` / `never_sufficient`), not
+Week 2's gold-hop-count `early` / `correct` / `late`.
+
+```powershell
+python -m pytest -q
+python scripts/run_adaptive_pipeline.py --config configs/adaptive.yaml
+```
+
+The seeded sample matches Week 1 (`split: dev`, `seed: 13`, `sample_size: 300`).
+Provider exhaustion ends the run as incomplete: records never attempted are
+omitted from scores, not zero-filled.
+
+Outputs:
+
+- `baseline/results/predictions_adaptive_k{k_hop}.jsonl` and `.meta.json`
+- `reports/week3/adaptive_pipeline_results.json` — EM/F1 (`evaluation.qa_eval`),
+  supporting-evidence P/R/F1 (`evaluate_prediction_rows`), parse/completion
+  counts, and live stopping-prefix outcomes
+
+Each live report records commit, seed, sample size, `k_hop`, reader /
+decomposition / stopping models and providers, completion state, and
+parse-failure count.
+
+The hop executor and final reader use `baseline/llm_client.py` (cached).
+Decomposition and the LLM stopping rule use `src/llm`. Lexical stopping
+(`stopping: lexical` in the config) needs no stopping-model calls.
+
+Offline tests use stubs only:
+
+```powershell
+python -m pytest tests/test_pipeline.py tests/test_hop_executor.py tests/test_adaptive_loop.py tests/test_live_trace_eval.py -v
+```
+
+Live EM/F1 numbers belong in this README after a complete run whose `.meta.json`
+is reproducible. Until that run exists, compare against the Week 1 BM25
+baseline table above on the same seed-13 sample.
+
+Detail: [src/week3/README.md](src/week3/README.md).
