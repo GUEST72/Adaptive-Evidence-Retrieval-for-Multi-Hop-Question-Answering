@@ -1,0 +1,14 @@
+# Week 3 adaptive pipeline. Seeded sample matches Week 1 baseline comparison.
+provider: groq
+model: openai/gpt-oss-120b
+decomposition_model: qwen/qwen3.8-27b
+stopping_model: qwen/qwen3.8-27b
+stopping: llm                 # llm | lexical
+k_hop: 3
+split: dev
+train_split: train
+sample_size: 300              # set to null for full dev
+seed: 13
+prompt_path: baseline/prompts/qa_prompt.txt
+retriever: bm25
+training_examples: 3

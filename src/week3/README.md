@@ -1,36 +1,90 @@
-# Week 3 — Adaptive Loop (Person 2)
+# Week 3 — Generated Adaptive Pipeline
 
-## What it does
+Week 2 measured the three pieces in isolation (generated decomposition, oracle
+hop-wise retrieval, synthetic stopping). Week 3 runs a **generated** plan live:
+substitute prior answers, retrieve per hop, stop when the original question is
+already answerable, then read a final answer from evidence at that stop.
 
-Drives a **generated** decomposition hop by hop, asking after each hop whether
-the evidence gathered so far already answers the original question, and
-abandoning the rest of the plan when it does.
+`src/week2/hopwise/` and `src/week2/stopping/` stay the oracle and synthetic
+experiments. This package does not reuse them as the live path.
 
 ```text
-hop 1 -> execute -> accumulate -> sufficient? -- no --> hop 2 -> ...
-                                      |
-                                     yes
-                                      v
-                                     stop
+question
+  -> generate decomposition (train few-shot; parse failure = scored miss)
+  -> hop 1: substitute -> retrieve -> intermediate answer
+  -> accumulate evidence -> sufficient? -- no --> hop 2 -> ...
+                                 |
+                                yes
+                                 v
+                    final reader on original question
+                    + evidence at the actual stop
 ```
 
-## Why it exists
+## Shared rules
 
-Week 2 showed hop-wise retrieval recovers far more evidence than one-shot, but
-it always ran *every* hop. Retrieving beyond sufficiency costs budget and
-latency, and feeds the reader distractors it does not need. This loop decides
-when to stop, and the evaluator measures whether it stops at the right moment.
+- Execution never reads `record.question_decomposition`, gold hop answers, or
+  `is_supporting`. Those fields are evaluation-only.
+- A decomposition parse failure is a failed generated prediction
+  (`status=parse_error`, empty answer and evidence). Do not substitute the gold
+  plan or drop the record from EM/F1.
+- Live traces are **not** labelled `early` / `correct` / `late`. Those Week 2
+  labels use gold hop count and apply only to synthetic prefixes.
+- Offline tests use stubs only; they do not load MuSiQue or call a provider.
+- Every live report records commit, seed, sample size, `k_hop`, all models and
+  providers, completion state, and parse-failure count.
 
 ## Modules
 
 | file | role |
 | --- | --- |
+| `contracts.py` | shared `HopResult` / `HopExecutor` |
+| `hop_executor.py` | generated-hop retrieval + hop reader |
 | `adaptive_loop.py` | `run_adaptive_hop_loop(...)` -> `AdaptiveRunResult` |
-| `live_trace_eval.py` | classifies stopping quality on a live trace |
-| `contracts.py` | shared `HopResult` / `HopExecutor` (Person 1) |
-| `hop_executor.py` | generated-hop retrieval + reader (Person 1) |
+| `live_trace_eval.py` | classifies stopping on a live evidence prefix |
+| `pipeline.py` | seeded-dev run, predictions, live-trace report |
 
-## The loop
+## Shared contract
+
+The executor is constructed with reader model, provider, and prompt path. Those
+settings are not hidden module globals.
+
+```python
+@dataclass(frozen=True)
+class HopResult:
+    step: EvidenceStep
+    intermediate_answer: str
+
+class HopExecutor(Protocol):
+    def __call__(
+        self,
+        record: MuSiQueRecord,
+        decomposition: Decomposition,
+        hop: int,
+        prior_answers: dict[int, str],
+        k_hop: int,
+        retrieve: Retriever,
+    ) -> HopResult: ...
+```
+
+## Generated hop executor
+
+`GeneratedHopExecutor` consumes only the generated decomposition and retrieved
+evidence. For generated hop `n`:
+
+1. Read `decomposition.steps[n - 1].question`.
+2. Substitute every validated `[ANSWER_N]` placeholder from `prior_answers`.
+   A missing required answer is an error, not an empty-string fallback.
+3. Call the existing `Retriever` with the substituted question, record ID, and
+   `k_hop`.
+4. Return an `EvidenceStep` containing that query and retrieved paragraphs.
+5. Build the existing baseline QA prompt from those paragraphs, call cached
+   `baseline.llm_client.call_llm`, extract the answer, and return `HopResult`.
+
+```powershell
+python -m pytest tests/test_hop_executor.py -v
+```
+
+## Adaptive loop
 
 ```python
 run_adaptive_hop_loop(record, decomposition, k_hop, retrieve,
@@ -43,9 +97,8 @@ intermediate answer under its hop number so hop *n+1* can resolve
 evidence and the hop's query as context.
 
 **The break happens before the next iteration.** A stop therefore costs no
-further executor call, and so no further retrieval or reader call — the saving
-is the mechanism's purpose, not a side effect. A test asserts the executor call
-count is exactly 1 after a stop at hop 1.
+further executor call, and so no further retrieval or reader call. A test
+asserts the executor call count is exactly 1 after a stop at hop 1.
 
 `AdaptiveRunResult` carries `trace`, `decisions`, `intermediate_answers`,
 `stop_hop` (`None` when every planned hop ran) and `planned_hops`.
@@ -53,15 +106,11 @@ count is exactly 1 after a stop at hop 1.
 Executor, retriever and stopping rule all arrive by injection, so the loop makes
 no provider calls and runs fully offline in tests.
 
-### No gold data during execution
+A test replaces `record.question_decomposition` with an object that raises on
+any access; it was verified non-vacuous by confirming a deliberately cheating
+executor trips it.
 
-Execution reads only `record.id`, `record.question`, and the generated
-decomposition. `question_decomposition`, gold hop answers and `is_supporting`
-are evaluation-only. A test replaces `record.question_decomposition` with an
-object that raises on any access; it was verified non-vacuous by confirming a
-deliberately cheating executor trips it.
-
-## The live-trace evaluator
+## Live-trace evaluator
 
 Week 2's `classify_stopping` compares the stop hop against **gold hop count**.
 That is correct for synthetic traces, built one gold paragraph per hop, and
@@ -83,29 +132,57 @@ evidence prefix containing every gold paragraph:
 | `stopped_early` | stopping ended a trace whose evidence was still incomplete |
 | `never_sufficient` | ran the whole plan and still never gathered full support |
 
-A design point worth knowing: the trace **ends** at the stop, so there is never
-a later prefix to compare against — "stopped before the sufficient prefix"
-cannot arise positionally. An incomplete trace is therefore classified by what
-ended it. That separates a *stopping* failure (`stopped_early`) from a
-*retrieval or decomposition* failure (`never_sufficient`), which a positional
-reading would have conflated.
-
-Outcome strings are deliberately distinct from Week 2's `early`/`correct`/`late`
-so the two classifications can never be silently mixed in one results file. The
-modules share no code; a regression test pins their disagreement on the
-one-hop-gathers-everything case.
+The trace **ends** at the stop, so there is never a later prefix to compare
+against. An incomplete trace is classified by what ended it. That separates a
+*stopping* failure (`stopped_early`) from a *retrieval or decomposition*
+failure (`never_sufficient`).
 
 Gold indices are read here. That is legitimate — this is scoring — and never
 happens during execution.
 
-## Running the tests
+## End-to-end pipeline
 
-```bash
-python -m pytest tests/test_adaptive_loop.py tests/test_live_trace_eval.py -v
-python -m pytest tests/ -q
+`pipeline.py` plus `scripts/run_adaptive_pipeline.py` run the Week 1 seeded
+sample (`split: dev`, `seed: 13`, `sample_size: 300`) end to end:
+
+1. Build train-derived few-shot examples **once** per run, then generate a
+   decomposition.
+2. On parse failure, emit empty predicted answer/evidence with
+   `status=parse_error` and keep the record in the attempted denominator.
+3. Run `run_adaptive_hop_loop` with `GeneratedHopExecutor`.
+4. Build the baseline QA prompt from the **original question** and
+   `accumulated_paragraphs` at the stop. It does not call `answer_question()`,
+   which would retrieve again from the raw question.
+5. Emit standard `QAResult` fields plus `status`, generated hop count, stop
+   hop, decisions, and retrieved indices.
+
+Score answers with `evaluation.qa_eval` and evidence with
+`evaluate_prediction_rows`. Provider exhaustion produces an incomplete run:
+records never attempted are omitted from scores, not zero-filled.
+
+Outputs:
+
+- `baseline/results/predictions_adaptive_k{k_hop}.jsonl`
+- matching `.meta.json`
+- `reports/week3/adaptive_pipeline_results.json` — EM/F1, supporting-evidence
+  P/R/F1, parse/completion counts, and live stopping-prefix outcomes
+
+Required live metadata: `git_commit`, `seed`, `sample_size`, `k_hop`, reader /
+decomposition / stopping models and providers, `complete`, `parse_failures`.
+
+There are **two LLM stacks**: `baseline/llm_client.py` (hop executor and final
+reader, with the response cache) and `src/llm/client.py` (decomposition and the
+LLM stopping rule). Lexical stopping (`stopping: lexical`) needs no stopping
+model.
+
+```powershell
+python -m pytest tests/test_pipeline.py tests/test_hop_executor.py tests/test_adaptive_loop.py tests/test_live_trace_eval.py -v
+python -m pytest -q
+python scripts/run_adaptive_pipeline.py --config configs/adaptive.yaml
 ```
 
-All offline: stubs only, no dataset, no network, no provider.
+Run the full offline suite before any live call. A small live sample belongs
+only after that.
 
 ## Limitations
 
@@ -115,15 +192,5 @@ All offline: stubs only, no dataset, no network, no provider.
   show whether continuing *would* have completed it — the hops were never run.
 - Classification needs gold support indices, so it applies to labelled
   evaluation data only.
-
-## For Person 3
-
-`AdaptiveRunResult.as_dict()` serialises the run for a results file.
-`evaluate_live_traces([(record, result), ...])` returns overall and per-hop-count
-blocks plus per-question outcomes, ready to merge into
-`reports/week3/adaptive_pipeline_results.json`.
-
-Note there are now **two LLM stacks**: `baseline/llm_client.py` (hop executor,
-with the response cache) and `src/llm/client.py` (stopping rule). The pipeline
-will need to configure both, and the report should record models and providers
-for each.
+- Live EM/F1 belongs in the root README only after a complete run whose
+  metadata is reproducible.
