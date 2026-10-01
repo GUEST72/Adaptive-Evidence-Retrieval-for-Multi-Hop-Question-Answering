@@ -274,3 +274,11 @@ def register_provider(name: str, complete: Callable[[str, str, int, float], str]
     if not callable(complete):
         raise TypeError(f"Provider {name!r} must be callable.")
     PROVIDERS[name] = complete
+
+
+def get_provider(name: str) -> Callable[[str, str, int, float], str]:
+    """Retrieve a registered provider by name."""
+    if name not in PROVIDERS:
+        raise ValueError(f"Unknown provider {name!r}. Registered providers: {sorted(PROVIDERS)}")
+    return PROVIDERS[name]
+
