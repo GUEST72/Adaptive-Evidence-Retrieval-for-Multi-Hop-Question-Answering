@@ -84,13 +84,15 @@ def main() -> int:
     from baseline import providers
 
     class ProviderClient:
-        def __init__(self, provider: str):
+        def __init__(self, provider: str, override_model: str | None = None):
             self.provider = provider
+            self.override_model = override_model
 
         def complete(self, request: LLMRequest) -> LLMResponse:
             fn = providers.get_provider(self.provider)
-            text = fn(request.prompt, request.model, request.max_tokens, request.temperature)
-            return LLMResponse(text=text, model=request.model, provider=self.provider)
+            target_model = self.override_model or request.model
+            text = fn(request.prompt, target_model, request.max_tokens, request.temperature)
+            return LLMResponse(text=text, model=target_model, provider=self.provider)
 
         def close(self):
             pass
@@ -102,7 +104,7 @@ def main() -> int:
         decomp_provider_name = "groq"
     except Exception:
         if reader_provider in providers.PROVIDERS:
-            decomp_client = ProviderClient(reader_provider)
+            decomp_client = ProviderClient(reader_provider, override_model=reader_model)
             decomp_model = reader_model
             stopping_model = reader_model
             decomp_provider_name = reader_provider
