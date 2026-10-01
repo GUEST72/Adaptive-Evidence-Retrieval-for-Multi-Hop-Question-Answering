@@ -44,6 +44,25 @@ from src.week3.pipeline import (
 )
 
 
+from baseline import providers
+from src.llm.client import LLMRequest, LLMResponse
+
+
+class ProviderClient:
+    def __init__(self, provider: str, override_model: str | None = None):
+        self.provider = provider
+        self.override_model = override_model
+
+    def complete(self, request: LLMRequest) -> LLMResponse:
+        fn = providers.get_provider(self.provider)
+        target_model = self.override_model or request.model
+        text = fn(request.prompt, target_model, request.max_tokens, request.temperature)
+        return LLMResponse(text=text, model=target_model, provider=self.provider)
+
+    def close(self):
+        pass
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=Path("configs/adaptive.yaml"))
@@ -81,9 +100,6 @@ def main() -> int:
         train = records
     examples = build_training_examples(train, count=example_count, seed=seed)
 
-    from baseline import providers
-    from src.llm.client import LLMRequest, LLMResponse
-
     # Auto-switch to local GPU provider (hf_local) if Groq keys are missing
     if reader_provider == "groq" and not os.environ.get("GROQ_API_KEY") and not os.environ.get("GROQ_API_KEY_2"):
         if "hf_local" in providers.PROVIDERS:
@@ -91,20 +107,6 @@ def main() -> int:
             reader_model = "Qwen/Qwen2.5-7B-Instruct"
             decomp_model = reader_model
             stopping_model = reader_model
-
-    class ProviderClient:
-        def __init__(self, provider: str, override_model: str | None = None):
-            self.provider = provider
-            self.override_model = override_model
-
-        def complete(self, request: LLMRequest) -> LLMResponse:
-            fn = providers.get_provider(self.provider)
-            target_model = self.override_model or request.model
-            text = fn(request.prompt, target_model, request.max_tokens, request.temperature)
-            return LLMResponse(text=text, model=target_model, provider=self.provider)
-
-        def close(self):
-            pass
 
     try:
         decomp_client = GroqClient(model=decomp_model)
