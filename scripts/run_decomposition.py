@@ -71,8 +71,11 @@ def main() -> int:
         )
     if args.extrinsic and not args.live:
         parser.error("--extrinsic requires --live because it makes additional LLM calls.")
-    train = load_split(args.train_split, args.data_dir)
     records = load_split(args.split, args.data_dir)
+    try:
+        train = load_split(args.train_split, args.data_dir)
+    except FileNotFoundError:
+        train = records
     chosen = random.Random(args.seed).sample(records, min(args.max_examples, len(records)))
     examples = build_training_examples(train, count=args.training_examples, seed=args.seed)
     responses = []

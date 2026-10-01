@@ -74,7 +74,10 @@ def main() -> int:
     seed = int(config.get("seed", 13))
 
     records = select_records(config)
-    train = load_split(config.get("train_split", "train"), config.get("data_dir"))
+    try:
+        train = load_split(config.get("train_split", "train"), config.get("data_dir"))
+    except FileNotFoundError:
+        train = records
     examples = build_training_examples(train, count=example_count, seed=seed)
 
     decomp_client = GroqClient(model=decomp_model)
