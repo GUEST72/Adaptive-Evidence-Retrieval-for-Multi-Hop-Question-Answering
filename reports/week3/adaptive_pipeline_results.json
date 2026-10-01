@@ -1,0 +1,167 @@
+{
+  "generated_at": "2026-10-01T12:11:00+00:00",
+  "git_commit": "c2c4703028509567602feb7758d6d4f355c22f8a",
+  "k_hop": 3,
+  "sample_size": 300,
+  "questions_attempted": 4,
+  "parse_failures": 0,
+  "completed": 4,
+  "complete": false,
+  "qa": {
+    "overall": {
+      "count": 4,
+      "em": 0.25,
+      "f1": 0.25
+    },
+    "by_hop": {
+      "2": {
+        "count": 3,
+        "em": 0.3333333333333333,
+        "f1": 0.3333333333333333
+      },
+      "3": {
+        "count": 1,
+        "em": 0.0,
+        "f1": 0.0
+      }
+    }
+  },
+  "supporting_evidence": {
+    "n": 4,
+    "missing_records": 0,
+    "overall": {
+      "precision": 0.35,
+      "recall": 0.7916666666666666,
+      "f1": 0.4837662337662338,
+      "em": 0.0
+    },
+    "by_hop": {
+      "2": {
+        "precision": 0.3833333333333333,
+        "recall": 0.8333333333333334,
+        "f1": 0.5238095238095238,
+        "em": 0.0
+      },
+      "3": {
+        "precision": 0.25,
+        "recall": 0.6666666666666666,
+        "f1": 0.36363636363636365,
+        "em": 0.0
+      }
+    }
+  },
+  "live_stopping": {
+    "overall": {
+      "count": 4,
+      "counts": {
+        "stopped_early": 0,
+        "stopped_at": 2,
+        "stopped_late": 0,
+        "never_sufficient": 2
+      },
+      "rates": {
+        "stopped_early": 0.0,
+        "stopped_at": 0.5,
+        "stopped_late": 0.0,
+        "never_sufficient": 0.5
+      },
+      "mean_hops_wasted": 0.0,
+      "mean_executed_hops": 2.25
+    },
+    "by_hop": {
+      "2": {
+        "count": 3,
+        "counts": {
+          "stopped_early": 0,
+          "stopped_at": 2,
+          "stopped_late": 0,
+          "never_sufficient": 1
+        },
+        "rates": {
+          "stopped_early": 0.0,
+          "stopped_at": 0.6666666666666666,
+          "stopped_late": 0.0,
+          "never_sufficient": 0.3333333333333333
+        },
+        "mean_hops_wasted": 0.0,
+        "mean_executed_hops": 2.0
+      },
+      "3": {
+        "count": 1,
+        "counts": {
+          "stopped_early": 0,
+          "stopped_at": 0,
+          "stopped_late": 0,
+          "never_sufficient": 1
+        },
+        "rates": {
+          "stopped_early": 0.0,
+          "stopped_at": 0.0,
+          "stopped_late": 0.0,
+          "never_sufficient": 1.0
+        },
+        "mean_hops_wasted": 0.0,
+        "mean_executed_hops": 3.0
+      }
+    },
+    "outcomes": [
+      {
+        "question_id": "2hop__59612_42352",
+        "outcome": "never_sufficient",
+        "gold_hop_count": 2,
+        "planned_hops": 2,
+        "executed_hops": 2,
+        "stop_hop": null,
+        "first_sufficient": null,
+        "hops_wasted": 0,
+        "hops_abandoned": 0
+      },
+      {
+        "question_id": "3hop1__145411_443779_52195",
+        "outcome": "never_sufficient",
+        "gold_hop_count": 3,
+        "planned_hops": 3,
+        "executed_hops": 3,
+        "stop_hop": null,
+        "first_sufficient": null,
+        "hops_wasted": 0,
+        "hops_abandoned": 0
+      },
+      {
+        "question_id": "2hop__95970_456836",
+        "outcome": "stopped_at",
+        "gold_hop_count": 2,
+        "planned_hops": 2,
+        "executed_hops": 2,
+        "stop_hop": null,
+        "first_sufficient": 2,
+        "hops_wasted": 0,
+        "hops_abandoned": 0
+      },
+      {
+        "question_id": "2hop__25797_25855",
+        "outcome": "stopped_at",
+        "gold_hop_count": 2,
+        "planned_hops": 2,
+        "executed_hops": 2,
+        "stop_hop": 2,
+        "first_sufficient": 2,
+        "hops_wasted": 0,
+        "hops_abandoned": 0
+      }
+    ]
+  },
+  "seed": 13,
+  "split": "dev",
+  "retriever": "bm25",
+  "reader_provider": "groq",
+  "reader_model": "openai/gpt-oss-120b",
+  "decomposition_provider": "groq",
+  "decomposition_model": "qwen/qwen3.8-27b",
+  "stopping_provider": "groq",
+  "stopping_model": "qwen/qwen3.8-27b",
+  "stopping": "llm",
+  "training_examples": 3,
+  "prompt_path": "qa_prompt.txt",
+  "prompt_sha256": "4b4dcf95d853b066"
+}
