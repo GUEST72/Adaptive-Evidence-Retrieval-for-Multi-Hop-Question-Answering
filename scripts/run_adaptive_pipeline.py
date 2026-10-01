@@ -80,13 +80,38 @@ def main() -> int:
         train = records
     examples = build_training_examples(train, count=example_count, seed=seed)
 
-    decomp_client = GroqClient(model=decomp_model)
-    if not decomp_client.key_manager.available:
-        parser.error(
-            "this pipeline needs GROQ_API_KEY or GROQ_API_KEY_2 for decomposition "
-            "(and for LLM stopping). A .env file is loaded for the baseline reader "
-            "stack only; export Groq keys in the current session as well."
-        )
+    from src.llm.client import LLMRequest, LLMResponse
+    from baseline import providers
+
+    class ProviderClient:
+        def __init__(self, provider: str):
+            self.provider = provider
+
+        def complete(self, request: LLMRequest) -> LLMResponse:
+            fn = providers.get_provider(self.provider)
+            text = fn(request.prompt, request.model, request.max_tokens, request.temperature)
+            return LLMResponse(text=text, model=request.model, provider=self.provider)
+
+        def close(self):
+            pass
+
+    try:
+        decomp_client = GroqClient(model=decomp_model)
+        if not decomp_client.key_manager.available:
+            raise RuntimeError("Groq key not available")
+        decomp_provider_name = "groq"
+    except Exception:
+        if reader_provider in providers.PROVIDERS:
+            decomp_client = ProviderClient(reader_provider)
+            decomp_model = reader_model
+            stopping_model = reader_model
+            decomp_provider_name = reader_provider
+        else:
+            parser.error(
+                "this pipeline needs GROQ_API_KEY or GROQ_API_KEY_2 for decomposition "
+                "(and for LLM stopping). A .env file is loaded for the baseline reader "
+                "stack only; export Groq keys in the current session or register a local provider."
+            )
 
     generator = DecompositionGenerator(decomp_client, model=decomp_model)
 
@@ -100,7 +125,7 @@ def main() -> int:
         stopping_provider = "lexical"
     elif stopping_mode == "llm":
         stopping_rule = LLMStoppingRule(decomp_client, model=stopping_model)
-        stopping_provider = "groq"
+        stopping_provider = decomp_provider_name
     else:
         parser.error("stopping must be 'llm' or 'lexical'")
 
@@ -124,7 +149,7 @@ def main() -> int:
         "retriever": retriever_name,
         "reader_provider": reader_provider,
         "reader_model": reader_model,
-        "decomposition_provider": "groq",
+        "decomposition_provider": decomp_provider_name,
         "decomposition_model": decomp_model,
         "stopping_provider": stopping_provider,
         "stopping_model": stopping_model if stopping_mode == "llm" else None,
