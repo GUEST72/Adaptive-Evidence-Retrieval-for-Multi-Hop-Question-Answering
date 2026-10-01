@@ -80,8 +80,16 @@ def main() -> int:
         train = records
     examples = build_training_examples(train, count=example_count, seed=seed)
 
-    from src.llm.client import LLMRequest, LLMResponse
     from baseline import providers
+    from src.llm.client import LLMRequest, LLMResponse
+
+    # Auto-switch to local GPU provider (hf_local) if Groq keys are missing
+    if reader_provider == "groq" and not os.environ.get("GROQ_API_KEY") and not os.environ.get("GROQ_API_KEY_2"):
+        if "hf_local" in providers.PROVIDERS:
+            reader_provider = "hf_local"
+            reader_model = "Qwen/Qwen2.5-7B-Instruct"
+            decomp_model = reader_model
+            stopping_model = reader_model
 
     class ProviderClient:
         def __init__(self, provider: str, override_model: str | None = None):
